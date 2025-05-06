@@ -1,7 +1,7 @@
 "use client";
 
 import Head from 'next/head';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -42,9 +42,17 @@ export default function MaidMayhemGame() {
   const [gameOver, setGameOver] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
+  // Refs for state values used in intervals/event listeners
+  const timeLeftRef = useRef(timeLeft);
+
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Update refs when state changes
+  useEffect(() => {
+    timeLeftRef.current = timeLeft;
+  }, [timeLeft]);
 
   const moveCharacter = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
     if (!isClient || gameOver) return;
@@ -58,8 +66,10 @@ export default function MaidMayhemGame() {
       if (direction === 'left') newX -= step;
       if (direction === 'right') newX += step;
       
-      newX = Math.max(0, Math.min(window.innerWidth - 50, newX)); // 50 is character width
-      newY = Math.max(0, Math.min(window.innerHeight - 50, newY)); // 50 is character height
+      const gameWidth = window.innerWidth;
+      const gameHeight = window.innerHeight;
+      newX = Math.max(0, Math.min(gameWidth > 50 ? gameWidth - 50 : 0, newX));
+      newY = Math.max(0, Math.min(gameHeight > 50 ? gameHeight - 50 : 0, newY));
       
       return { x: newX, y: newY };
     });
@@ -71,45 +81,45 @@ export default function MaidMayhemGame() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
         if (gameOver) return;
-        let newX = characterPosition.x;
-        let newY = characterPosition.y;
-        const step = CHARACTER_STEP;
         
-        if (e.key === 'ArrowUp') newY -= step;
-        if (e.key === 'ArrowDown') newY += step;
-        if (e.key === 'ArrowLeft') newX -= step;
-        if (e.key === 'ArrowRight') newX += step;
-        else return;
-
-        newX = Math.max(0, Math.min(window.innerWidth - 50, newX));
-        newY = Math.max(0, Math.min(window.innerHeight - 50, newY));
-        setCharacterPosition({ x: newX, y: newY });
+        if (e.key === 'ArrowUp') moveCharacter('up');
+        else if (e.key === 'ArrowDown') moveCharacter('down');
+        else if (e.key === 'ArrowLeft') moveCharacter('left');
+        else if (e.key === 'ArrowRight') moveCharacter('right');
       };
 
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     
-  }, [isClient, characterPosition.x, characterPosition.y, gameOver]);
+  }, [isClient, gameOver, moveCharacter]);
 
   // Spawn food items
   useEffect(() => {
-    if (!isClient) return;
+    if (!isClient || gameOver) {
+      return; // Interval will be cleaned up by the return function if game is over
+    }
 
     const interval = setInterval(() => {
-      if (foodItems.length < MAX_FOOD_ITEMS && timeLeft > 0 && !gameOver) {
-        setFoodItems(prevItems => [
-          ...prevItems,
-          {
-            id: Date.now() + Math.random(), // Ensure unique ID
-            x: Math.random() * (window.innerWidth - 30), // 30 is food width
-            y: Math.random() * (window.innerHeight - 30), // 30 is food height
-            type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
-          }
-        ]);
-      }
+      setFoodItems(prevFoodItems => {
+        if (prevFoodItems.length < MAX_FOOD_ITEMS && timeLeftRef.current > 0) {
+          const gameWidth = window.innerWidth;
+          const gameHeight = window.innerHeight;
+          return [
+            ...prevFoodItems,
+            {
+              id: Date.now() + Math.random(),
+              x: Math.random() * (gameWidth > 30 ? gameWidth - 30 : 0),
+              y: Math.random() * (gameHeight > 30 ? gameHeight - 30 : 0),
+              type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
+            }
+          ];
+        }
+        return prevFoodItems;
+      });
     }, FOOD_SPAWN_INTERVAL);
-    return () => clearInterval(interval);
-  }, [isClient, foodItems.length, timeLeft, gameOver]);
+
+    return () => clearInterval(interval); // Cleanup interval
+  }, [isClient, gameOver]); // Dependencies for setting up/tearing down the interval
 
   // Timer
   useEffect(() => {
@@ -150,15 +160,17 @@ export default function MaidMayhemGame() {
     setScore(0);
     setTimeLeft(GAME_DURATION);
     setFoodItems([]);
-    setCharacterPosition({ x: window.innerWidth / 2 - 25 , y: window.innerHeight / 2 - 25 });
     setGameOver(false);
+    // Character position is reset by the useEffect below that depends on `gameOver`
   };
 
   useEffect(() => { // Center character on game start/restart
     if (isClient) {
-      setCharacterPosition({ x: window.innerWidth / 2 - 25 , y: window.innerHeight / 2 - 25 });
+      const gameWidth = window.innerWidth;
+      const gameHeight = window.innerHeight;
+      setCharacterPosition({ x: gameWidth / 2 - 25 , y: gameHeight / 2 - 25 });
     }
-  }, [isClient, gameOver]);
+  }, [isClient, gameOver]); // Runs when isClient becomes true, or when gameOver changes
 
 
   if (!isClient) {
@@ -170,7 +182,7 @@ export default function MaidMayhemGame() {
       <Button
         className="p-3 w-16 h-16 rounded-full bg-primary/80 hover:bg-primary text-primary-foreground shadow-lg"
         onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
-        onClick={() => moveCharacter('up')} // For mouse interaction on desktop
+        onClick={() => moveCharacter('up')}
         aria-label="Move Up"
       >
         <ArrowUp size={32} />
@@ -235,7 +247,7 @@ export default function MaidMayhemGame() {
         </div>
       </header>
       
-      <main className="w-full h-full" aria-hidden="true"> {/* Game area, controls handled separately */}
+      <main className="w-full h-full" aria-hidden="true">
         <div
           style={{
             position: 'absolute',
@@ -243,10 +255,10 @@ export default function MaidMayhemGame() {
             top: characterPosition.y,
             width: '50px',
             height: '50px',
-            transition: 'left 0.05s linear, top 0.05s linear', // Faster transition for smoother movement
+            transition: 'left 0.05s linear, top 0.05s linear',
           }}
           className="flex items-center justify-center"
-          role="img" // Changed to img for semantic representation of character
+          role="img"
           aria-label="Maid character"
         >
            <MaidIcon className="w-full h-full text-primary drop-shadow-lg" />
@@ -263,7 +275,7 @@ export default function MaidMayhemGame() {
               height: '30px',
             }}
             className="flex items-center justify-center"
-            role="img" // Changed to img for semantic representation of food
+            role="img"
             aria-label={`Collect ${food.type.name}`}
           >
             <food.type.Icon className="w-full h-full text-accent drop-shadow-md animate-pulse" />
