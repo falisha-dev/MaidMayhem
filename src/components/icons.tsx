@@ -99,36 +99,56 @@ export const CherryIcon = (props: SVGProps<SVGSVGElement>) => (
 export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
     {/* Table */}
-    <rect x="10" y="70" width="80" height="20" rx="3" fill="hsl(var(--muted))" stroke="hsl(var(--muted-foreground))" />
-    <line x1="20" y1="90" x2="20" y2="98" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
-    <line x1="80" y1="90" x2="80" y2="98" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
+    <rect x="5" y="70" width="90" height="25" rx="3" fill="hsl(var(--muted))" stroke="hsl(var(--muted-foreground))" />
+    <line x1="15" y1="95" x2="15" y2="100" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
+    <line x1="85" y1="95" x2="85" y2="100" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
     
-    {/* Princess Body (simple gown shape) */}
-    <path d="M40 68 L30 45 Q 50 30 70 45 L 60 68 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" />
+    {/* Princess Body (elegant gown shape) */}
+    <path d="M50 70 C 35 70, 25 55, 30 40 Q 50 28 70 40 C 75 55, 65 70, 50 70 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+    {/* Neck */}
+    <rect x="47" y="35" width="6" height="5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
+
 
     {/* Princess Head */}
-    <circle cx="50" cy="30" r="10" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" />
-    {/* Eyes */}
-    <circle cx="46" cy="28" r="1.5" fill="hsl(var(--primary))" />
-    <circle cx="54" cy="28" r="1.5" fill="hsl(var(--primary))" />
-    {/* Smile */}
-    <path d="M47 33 Q 50 35 53 33" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
+    <circle cx="50" cy="25" r="10" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+    {/* Eyes - larger and more expressive */}
+    <ellipse cx="45" cy="23" rx="2.5" ry="3.5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <circle cx="45" cy="23.5" r="1" fill="hsl(var(--primary))" /> 
+    <ellipse cx="55" cy="23" rx="2.5" ry="3.5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <circle cx="55" cy="23.5" r="1" fill="hsl(var(--primary))" />
+    
+    {/* Eyelashes */}
+    <path d="M42.5 21 Q 43.5 19 45 19.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none"/>
+    <path d="M44.5 20 Q 45.5 18 47 18.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none"/>
+    <path d="M52.5 21 Q 53.5 19 55 19.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none" transform="scale(-1, 1) translate(-100, 0)"/>
+    <path d="M54.5 20 Q 55.5 18 57 18.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none" transform="scale(-1, 1) translate(-109, 0)"/>
 
-    {/* Princess Hair (simple) */}
-    <path d="M40 30 Q 50 15 60 30" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="2" />
-    <path d="M40 30 C 35 35, 35 40, 40 42" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" />
-    <path d="M60 30 C 65 35, 65 40, 60 42" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" />
+
+    {/* Smile - more defined and gentle */}
+    <path d="M46 30 Q 50 32.5 54 30" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" />
+
+    {/* Princess Hair (flowing, elegant bun or waves) */}
+    <path d="M38 25 Q 35 10 50 8 Q 65 10 62 25" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="1.5" />
+    <path d="M38 25 C 36 30, 37 35, 43 36" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" strokeWidth="1.5"/>
+    <path d="M62 25 C 64 30, 63 35, 57 36" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" strokeWidth="1.5"/>
+    {/* Hair bun/detail */}
+    <circle cx="50" cy="12" r="5" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" strokeWidth="1.5"/>
+    <path d="M48 10 Q 50 14 52 10" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
+
+
     {/* Crown */}
-    <path d="M45 18 L 47 12 L 50 15 L 53 12 L 55 18 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1.5"/>
+    <path d="M45 5 L 47 0 L 50 3 L 53 0 L 55 5 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1"/>
 
 
-    {/* Arms (simple resting on table) */}
-    <path d="M35 50 Q 25 60 20 70" stroke="hsl(var(--primary))" strokeWidth="3" fill="none" />
-    <path d="M65 50 Q 75 60 80 70" stroke="hsl(var(--primary))" strokeWidth="3" fill="none" />
+    {/* Arms (slender, resting on table) */}
+    <path d="M35 50 Q 28 60 22 70" stroke="hsl(var(--primary-foreground))" strokeWidth="2.5" fill="none" />
+     <path d="M36 50 Q 29 60 23 70" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
+    <path d="M65 50 Q 72 60 78 70" stroke="hsl(var(--primary-foreground))" strokeWidth="2.5" fill="none" />
+    <path d="M64 50 Q 71 60 77 70" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
     
     {/* Small plate/cup on table */}
-    <circle cx="30" cy="65" r="5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" />
-    <rect x="28" y="58" width="4" height="7" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))"/>
+    <circle cx="30" cy="65" r="4" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" strokeWidth="1"/>
+    <path d="M28 62 Q 30 58 32 62" stroke="hsl(var(--border))" fill="hsl(var(--primary-foreground))" strokeWidth="1"/>
   </svg>
 );
 
