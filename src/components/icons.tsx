@@ -157,7 +157,8 @@ export const PrincessIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M50 65 Q 25 85 20 110" stroke="hsl(var(--primary)/0.6)" strokeWidth="2" fill="none"/>
     <path d="M50 65 Q 75 85 80 110" stroke="hsl(var(--primary)/0.6)" strokeWidth="2" fill="none"/>
     <path d="M15 148 Q 50 130 85 148" stroke="hsl(var(--primary)/0.6)" strokeWidth="2" fill="none"/>
-    <ellipse cx="50" cy="95" rx="30" ry="12" fill="hsl(var(--primary)/0.3)" />
   </svg>
 );
+    
+
     
