@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon, PrincessAtTableIcon } from '@/components/icons';
+import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon, PrincessIcon } from '@/components/icons'; // Updated import
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Gamepad2 } from 'lucide-react';
 
 const GAME_DURATION = 60; // seconds
@@ -110,10 +110,10 @@ export default function MaidMayhemGame() {
     const handleKeyDown = (e: KeyboardEvent) => {
         if (gameOverRef.current) return;
         
-        if (e.key === 'ArrowUp') moveCharacter('up');
-        else if (e.key === 'ArrowDown') moveCharacter('down');
-        else if (e.key === 'ArrowLeft') moveCharacter('left');
-        else if (e.key === 'ArrowRight') moveCharacter('right');
+        if (e.key === 'ArrowUp') { e.preventDefault(); moveCharacter('up'); }
+        else if (e.key === 'ArrowDown') { e.preventDefault(); moveCharacter('down'); }
+        else if (e.key === 'ArrowLeft') { e.preventDefault(); moveCharacter('left'); }
+        else if (e.key === 'ArrowRight') { e.preventDefault(); moveCharacter('right'); }
       };
 
       window.addEventListener('keydown', handleKeyDown);
@@ -248,14 +248,14 @@ export default function MaidMayhemGame() {
   
   const TouchControls = () => (
     <div 
-        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20 sm:hidden" 
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20" // Removed sm:hidden
         aria-label="Touch controls D-pad"
         style={{ WebkitTapHighlightColor: 'transparent' }}
     >
         <Button
             className="col-start-2 row-start-1 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
-            onClick={(e) => { e.preventDefault(); moveCharacter('up');}} // Added onClick for mouse users if somehow visible
+            onClick={(e) => { e.preventDefault(); moveCharacter('up');}}
             aria-label="Move Up"
         >
             <ArrowUp size={28} />
@@ -323,7 +323,7 @@ export default function MaidMayhemGame() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="sm:hidden p-1.5 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
+            className="p-1.5 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg" // Removed sm:hidden
             onClick={() => setShowControls(prev => !prev)}
             aria-label={showControls ? "Hide touch controls" : "Show touch controls"}
           >
@@ -344,14 +344,14 @@ export default function MaidMayhemGame() {
                 position: 'absolute',
                 top: '10px',
                 left: '10px',
-                width: '60px', // Adjust size as needed
-                height: '60px', // Adjust size as needed
-                zIndex: 5 // Ensure it's above other game elements but below UI like score
+                width: '60px', 
+                height: '90px', // Adjusted for aspect ratio
+                zIndex: 5 
             }}
             role="img"
-            aria-label="Princess at dining table"
+            aria-label="Princess character" // Updated aria-label
         >
-            <PrincessAtTableIcon className="w-full h-full text-pink-400 drop-shadow-md" />
+            <PrincessIcon className="w-full h-full text-pink-400 drop-shadow-md" /> {/* Changed to PrincessIcon */}
         </div>
 
         <div
