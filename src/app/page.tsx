@@ -280,12 +280,8 @@ export default function MaidMayhemGame() {
     <div 
       className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none"
       style={{ 
-        backgroundImage: "url('https://picsum.photos/1920/1080')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
         WebkitTapHighlightColor: 'transparent' 
       }}
-      data-ai-hint="castle kitchen"
     >
       <Head>
         <title>Maid Mayhem</title>
@@ -380,3 +376,4 @@ export default function MaidMayhemGame() {
 
 
     
+
