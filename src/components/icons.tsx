@@ -12,7 +12,7 @@ export const MaidIcon = (props: SVGProps<SVGSVGElement>) => (
     <circle cx="36" cy="16" r="1.5" fill="hsl(var(--primary))" />
     {/* Smile */}
     <path d="M29 21 Q 32 23 35 21" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
-    
+
     {/* Hair/Bonnet outline */}
     <path d="M22 18 Q 32 10 42 18" stroke="hsl(var(--primary))" fill="hsl(var(--primary-foreground))" strokeWidth="1.5"/>
     <path d="M22 18 C 20 22, 20 28, 22 30" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" />
@@ -22,7 +22,7 @@ export const MaidIcon = (props: SVGProps<SVGSVGElement>) => (
 
     {/* Body - simple dress shape */}
     <path d="M26 28 L 22 48 Q 32 54 42 48 L 38 28 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" />
-    
+
     {/* Apron */}
     <path d="M27 32 L 24 46 Q 32 50 40 46 L 37 32 Z" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" />
     <rect x="28" y="30" width="8" height="4" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" />
@@ -99,12 +99,12 @@ export const PrincessIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 150" fill="none" strokeWidth="1.5" {...props}>
     {/* Head */}
     <circle cx="50" cy="30" r="15" fill="hsl(35, 78%, 88%)" stroke="hsl(30, 50%, 60%)" strokeWidth="1.5"/> {/* Skin tone */}
-    
+
     {/* Eyes - larger and more expressive with sparkle */}
     <ellipse cx="42" cy="28" rx="4" ry="6" fill="white" stroke="hsl(240, 50%, 30%)" strokeWidth="1"/>
-    <circle cx="42" cy="30" r="2.5" fill="hsl(190, 70%, 50%)" /> 
+    <circle cx="42" cy="30" r="2.5" fill="hsl(190, 70%, 50%)" />
     <circle cx="41" cy="27" r="1" fill="white" /> {/* Sparkle */}
-    
+
     <ellipse cx="58" cy="28" rx="4" ry="6" fill="white" stroke="hsl(240, 50%, 30%)" strokeWidth="1"/>
     <circle cx="58" cy="30" r="2.5" fill="hsl(190, 70%, 50%)" />
     <circle cx="57" cy="27" r="1" fill="white" /> {/* Sparkle */}
@@ -112,13 +112,13 @@ export const PrincessIcon = (props: SVGProps<SVGSVGElement>) => (
     {/* Eyelashes */}
     <path d="M36 24 Q 40 20 44 23" stroke="hsl(240, 50%, 30%)" strokeWidth="1" fill="none"/>
     <path d="M37 26 Q 41 22 45 25" stroke="hsl(240, 50%, 30%)" strokeWidth="1" fill="none"/>
-    
+
     <path d="M64 24 Q 60 20 56 23" stroke="hsl(240, 50%, 30%)" strokeWidth="1" fill="none"/>
     <path d="M63 26 Q 59 22 55 25" stroke="hsl(240, 50%, 30%)" strokeWidth="1" fill="none"/>
 
     {/* Smile - gentle and sweet */}
     <path d="M45 38 Q 50 42 55 38" stroke="hsl(0, 70%, 60%)" strokeWidth="1.2" fill="none" />
-    
+
     {/* Blush */}
     <ellipse cx="38" cy="35" rx="5" ry="3" fill="hsl(0, 100%, 85%)" opacity="0.6" />
     <ellipse cx="62" cy="35" rx="5" ry="3" fill="hsl(0, 100%, 85%)" opacity="0.6" />
@@ -137,14 +137,14 @@ export const PrincessIcon = (props: SVGProps<SVGSVGElement>) => (
     <circle cx="50" cy="9.5" r="2" fill="hsl(0, 70%, 70%)" />
     <circle cx="56" cy="0" r="1.5" fill="hsl(300, 70%, 70%)" />
 
-    {/* Body - Torso (elegant neckline) */}
-    <path d="M38 45 C 38 55, 40 65, 50 65 C 60 65, 62 55, 62 45 L 58 48 Q 50 52 42 48 Z" 
-          fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
-    
-    {/* Ball Gown Skirt - wide and flowing, extending downwards */}
-    <path d="M20 65 C -10 90, -15 130, 10 148 L 90 148 C 115 130, 110 90, 80 65 Z" 
-          fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
-    
+    {/* Body - Torso (elegant neckline) - White with pink trim */}
+    <path d="M38 45 C 38 55, 40 65, 50 65 C 60 65, 62 55, 62 45 L 58 48 Q 50 52 42 48 Z"
+          fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+
+    {/* Ball Gown Skirt - wide and flowing, extending downwards - White with pink trim */}
+    <path d="M20 65 C -10 90, -15 130, 10 148 L 90 148 C 115 130, 110 90, 80 65 Z"
+          fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+
     {/* Arms (graceful pose, skin tone) */}
     {/* Left Arm */}
     <path d="M38 55 C 30 65, 25 80, 30 90" stroke="hsl(35, 78%, 88%)" fill="none" strokeWidth="4"/>
@@ -153,12 +153,17 @@ export const PrincessIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M62 55 C 70 65, 75 80, 70 90" stroke="hsl(35, 78%, 88%)" fill="none" strokeWidth="4"/>
     <circle cx="71" cy="92" r="4" fill="hsl(35, 78%, 88%)" stroke="hsl(30, 50%, 60%)" strokeWidth="1"/>
 
-    {/* Gown details - subtle folds or patterns */}
-    <path d="M50 65 Q 25 85 20 110" stroke="hsl(var(--primary)/0.6)" strokeWidth="2" fill="none"/>
-    <path d="M50 65 Q 75 85 80 110" stroke="hsl(var(--primary)/0.6)" strokeWidth="2" fill="none"/>
-    <path d="M15 148 Q 50 130 85 148" stroke="hsl(var(--primary)/0.6)" strokeWidth="2" fill="none"/>
+    {/* Gown details - Pink lines for trimmings/folds */}
+    <path d="M50 65 Q 25 85 20 110" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none"/>
+    <path d="M50 65 Q 75 85 80 110" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none"/>
+    <path d="M15 148 Q 50 130 85 148" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none"/>
+
+    {/* Pink Waist Sash */}
+    <rect x="42" y="62" width="16" height="7" rx="2" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1"/>
+
+    {/* Bodice Embellishments (Pink "Bows"/gems) */}
+    <circle cx="45" cy="52" r="1.5" fill="hsl(var(--primary))"/>
+    <circle cx="50" cy="50" r="1.5" fill="hsl(var(--primary))"/>
+    <circle cx="55" cy="52" r="1.5" fill="hsl(var(--primary))"/>
   </svg>
 );
-    
-
-    
