@@ -1,3 +1,4 @@
+
 import type { SVGProps } from 'react';
 
 // Cute Minion Maid Doll Icon
@@ -93,3 +94,41 @@ export const CherryIcon = (props: SVGProps<SVGSVGElement>) => (
     <circle cx="17.5" cy="17.5" r="3.5" fill="hsl(var(--destructive))" stroke="hsl(var(--destructive-foreground))"/>
   </svg>
 );
+
+
+export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
+    {/* Table */}
+    <rect x="10" y="70" width="80" height="20" rx="3" fill="hsl(var(--muted))" stroke="hsl(var(--muted-foreground))" />
+    <line x1="20" y1="90" x2="20" y2="98" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
+    <line x1="80" y1="90" x2="80" y2="98" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
+    
+    {/* Princess Body (simple gown shape) */}
+    <path d="M40 68 L30 45 Q 50 30 70 45 L 60 68 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" />
+
+    {/* Princess Head */}
+    <circle cx="50" cy="30" r="10" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" />
+    {/* Eyes */}
+    <circle cx="46" cy="28" r="1.5" fill="hsl(var(--primary))" />
+    <circle cx="54" cy="28" r="1.5" fill="hsl(var(--primary))" />
+    {/* Smile */}
+    <path d="M47 33 Q 50 35 53 33" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
+
+    {/* Princess Hair (simple) */}
+    <path d="M40 30 Q 50 15 60 30" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="2" />
+    <path d="M40 30 C 35 35, 35 40, 40 42" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" />
+    <path d="M60 30 C 65 35, 65 40, 60 42" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" />
+    {/* Crown */}
+    <path d="M45 18 L 47 12 L 50 15 L 53 12 L 55 18 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1.5"/>
+
+
+    {/* Arms (simple resting on table) */}
+    <path d="M35 50 Q 25 60 20 70" stroke="hsl(var(--primary))" strokeWidth="3" fill="none" />
+    <path d="M65 50 Q 75 60 80 70" stroke="hsl(var(--primary))" strokeWidth="3" fill="none" />
+    
+    {/* Small plate/cup on table */}
+    <circle cx="30" cy="65" r="5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" />
+    <rect x="28" y="58" width="4" height="7" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))"/>
+  </svg>
+);
+

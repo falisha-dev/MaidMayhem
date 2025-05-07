@@ -6,8 +6,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon } from '@/components/icons';
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
+import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon, PrincessAtTableIcon } from '@/components/icons';
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Gamepad2 } from 'lucide-react';
 
 const GAME_DURATION = 60; // seconds
 const FOOD_SPAWN_INTERVAL = 2000; // ms
@@ -42,6 +42,7 @@ export default function MaidMayhemGame() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [gameOver, setGameOver] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [showControls, setShowControls] = useState(false);
   const gameAreaRef = useRef<HTMLDivElement>(null);
 
   // Refs for state values used in intervals/event listeners
@@ -180,8 +181,9 @@ export default function MaidMayhemGame() {
   useEffect(() => {
     if (!isClient || gameOverRef.current) return;
 
+    // Debounce or throttle this effect if performance issues arise
     const charRect = { x: characterPositionRef.current.x, y: characterPositionRef.current.y, width: 50, height: 50 };
-    let itemsCollected = 0;
+    let itemsCollectedThisFrame = 0;
 
     const newFoodItems = foodItemsRef.current.filter(food => {
       const foodRect = { x: food.x, y: food.y, width: 30, height: 30 };
@@ -192,44 +194,52 @@ export default function MaidMayhemGame() {
         charRect.y < foodRect.y + foodRect.height &&
         charRect.y + charRect.height > foodRect.y
       ) {
-        setScore(prevScore => prevScore + food.type.points);
-        itemsCollected++;
+        // setScore(prevScore => prevScore + food.type.points); // This can cause multiple updates
+        scoreRef.current += food.type.points; // Update ref directly
+        itemsCollectedThisFrame++;
         return false; // Remove collected food
       }
       return true; // Keep uncollected food
     });
 
-    if (itemsCollected > 0) {
+    if (itemsCollectedThisFrame > 0) {
         setFoodItems(newFoodItems);
+        setScore(scoreRef.current); // Batch score update
     }
 
   }, [isClient, characterPosition]); 
   
   const restartGame = () => {
     setScore(0);
+    scoreRef.current = 0;
     setTimeLeft(GAME_DURATION);
+    timeLeftRef.current = GAME_DURATION;
     setFoodItems([]); 
+    foodItemsRef.current = [];
     setGameOver(false); 
+    gameOverRef.current = false;
+    setShowControls(false);
     // Character position will be reset by the useEffect below due to gameOver change
   };
 
   useEffect(() => { 
     if (isClient && gameAreaRef.current) {
       const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
-      if (gameAreaRect.width > 0 && gameAreaRect.height > 0) {
-        setCharacterPosition({ x: gameAreaRect.width / 2 - 25 , y: gameAreaRect.height / 2 - 25 });
-      } else {
-        setTimeout(() => {
-          if (gameAreaRef.current) {
-            const rect = gameAreaRef.current.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
-               setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
-            }
+      const calculateCenter = () => {
+        if (gameAreaRef.current) {
+          const rect = gameAreaRef.current.getBoundingClientRect();
+          if (rect.width > 0 && rect.height > 0) {
+             setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
+             characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
+          } else {
+            // Retry if rect is not yet available (e.g. initial render)
+            setTimeout(calculateCenter, 100);
           }
-        }, 100); 
-      }
+        }
+      };
+      calculateCenter();
     }
-  }, [isClient, gameOver]); 
+  }, [isClient, gameOver]); // Re-center when game restarts
 
 
   if (!isClient) {
@@ -245,7 +255,7 @@ export default function MaidMayhemGame() {
         <Button
             className="col-start-2 row-start-1 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
-            onClick={() => moveCharacter('up')}
+            onClick={(e) => { e.preventDefault(); moveCharacter('up');}} // Added onClick for mouse users if somehow visible
             aria-label="Move Up"
         >
             <ArrowUp size={28} />
@@ -253,7 +263,7 @@ export default function MaidMayhemGame() {
         <Button
             className="col-start-1 row-start-2 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('left');}}
-            onClick={() => moveCharacter('left')}
+            onClick={(e) => { e.preventDefault(); moveCharacter('left');}}
             aria-label="Move Left"
         >
             <ArrowLeft size={28} />
@@ -261,7 +271,7 @@ export default function MaidMayhemGame() {
         <Button
             className="col-start-3 row-start-2 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('right');}}
-            onClick={() => moveCharacter('right')}
+            onClick={(e) => { e.preventDefault(); moveCharacter('right');}}
             aria-label="Move Right"
         >
             <ArrowRight size={28} />
@@ -269,7 +279,7 @@ export default function MaidMayhemGame() {
         <Button
             className="col-start-2 row-start-3 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('down');}}
-            onClick={() => moveCharacter('down')}
+            onClick={(e) => { e.preventDefault(); moveCharacter('down');}}
             aria-label="Move Down"
         >
             <ArrowDown size={28} />
@@ -293,7 +303,7 @@ export default function MaidMayhemGame() {
 
       <header className="absolute top-0 left-0 right-0 p-3 sm:p-4 flex justify-between items-center z-10">
         <h1 className="text-xl sm:text-3xl font-bold text-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">Maid Mayhem</h1>
-        <div className="flex gap-2 sm:gap-4">
+        <div className="flex gap-2 sm:gap-4 items-center">
           <Card className="p-2 sm:p-3 bg-accent/80 shadow-lg rounded-lg sm:rounded-xl backdrop-blur-sm">
             <CardHeader className="p-0 mb-0.5 sm:mb-1">
               <CardTitle className="text-xs sm:text-lg text-accent-foreground">Score</CardTitle>
@@ -310,6 +320,15 @@ export default function MaidMayhemGame() {
               <p className="text-base sm:text-2xl font-bold text-primary-foreground">{timeLeft}</p>
             </CardContent>
           </Card>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="sm:hidden p-1.5 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
+            onClick={() => setShowControls(prev => !prev)}
+            aria-label={showControls ? "Hide touch controls" : "Show touch controls"}
+          >
+            <Gamepad2 size={24}/>
+          </Button>
         </div>
       </header>
       
@@ -319,6 +338,22 @@ export default function MaidMayhemGame() {
         className="relative w-[calc(100%-2rem)] h-[calc(100%-8rem)] sm:w-[calc(100%-4rem)] sm:h-[calc(100%-10rem)] max-w-screen-lg max-h-[700px] bg-background/30 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
         aria-hidden="true"
       >
+        {/* Princess Icon */}
+        <div 
+            style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                width: '60px', // Adjust size as needed
+                height: '60px', // Adjust size as needed
+                zIndex: 5 // Ensure it's above other game elements but below UI like score
+            }}
+            role="img"
+            aria-label="Princess at dining table"
+        >
+            <PrincessAtTableIcon className="w-full h-full text-pink-400 drop-shadow-md" />
+        </div>
+
         <div
           style={{
             position: 'absolute',
@@ -355,12 +390,12 @@ export default function MaidMayhemGame() {
       </main>
 
       {gameOver && (
-        <AlertDialog open={gameOver} onOpenChange={(open) => !open && restartGame()}>
+        <AlertDialog open={gameOver} onOpenChange={(open) => { if(!open) restartGame(); }}>
           <AlertDialogContent className="bg-background/90 border-primary shadow-2xl rounded-2xl backdrop-blur-md">
             <AlertDialogHeader className="items-center">
               <AlertDialogTitle className="text-3xl text-primary">Game Over!</AlertDialogTitle>
               <AlertDialogDescription className="text-lg text-foreground text-center">
-                Your final score is {score}.
+                Your final score is {scoreRef.current}.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="sm:justify-center">
@@ -371,7 +406,8 @@ export default function MaidMayhemGame() {
           </AlertDialogContent>
         </AlertDialog>
       )}
-      {!gameOver && <TouchControls />}
+      {!gameOver && showControls && <TouchControls />}
     </div>
   );
 }
+
