@@ -97,21 +97,23 @@ export const CherryIcon = (props: SVGProps<SVGSVGElement>) => (
 
 
 export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
-    {/* Table */}
-    <rect x="5" y="70" width="90" height="25" rx="3" fill="hsl(var(--muted))" stroke="hsl(var(--muted-foreground))" />
-    <line x1="15" y1="95" x2="15" y2="100" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
-    <line x1="85" y1="95" x2="85" y2="100" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
+    {/* Princess Gown (standing) */}
+    <path d="M38 42 L30 58 C 20 70, 5 85, 2 95 L 98 95 C 95 85, 80 70, 70 58 L62 42 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5" />
     
-    {/* Princess Body (elegant ball gown shape) */}
-    <path d="M50 40 C 40 40, 35 45, 30 50 L 20 70 L 80 70 L 70 50 C 65 45, 60 40, 50 40 Z M30 50 C 30 55, 25 65, 20 70 M 70 50 C 70 55, 75 65, 80 70" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5" />
-    {/* Bodice detail */}
-     <path d="M50 40 Q 38 42 35 50  Q 38 58 50 60 Q 62 58 65 50 Q 62 42 50 40 Z" fill="hsl(var(--primary)/0.7)" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    {/* Puff Sleeves */}
+    <circle cx="36" cy="48" r="6" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <circle cx="64" cy="48" r="6" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1"/>
 
+    {/* Bodice detail */}
+    <path d="M50 40 Q 38 42 35 50  Q 38 58 50 60 Q 62 58 65 50 Q 62 42 50 40 Z" fill="hsl(var(--primary)/0.7)" stroke="hsl(var(--primary))" strokeWidth="1"/>
+
+    {/* Forearms */}
+    <path d="M36 53 C 34 63, 35 70, 37 75 L 40 74 C 38 68, 37 62, 39 54 Z" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <path d="M64 53 C 66 63, 65 70, 63 75 L 60 74 C 62 68, 63 62, 61 54 Z" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
 
     {/* Neck */}
     <rect x="47" y="35" width="6" height="5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
-
 
     {/* Princess Head */}
     <circle cx="50" cy="25" r="10" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
@@ -127,7 +129,6 @@ export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M52.5 21 Q 53.5 19 55 19.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none" transform="scale(-1, 1) translate(-100, 0)"/>
     <path d="M54.5 20 Q 55.5 18 57 18.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none" transform="scale(-1, 1) translate(-109, 0)"/>
 
-
     {/* Smile - more defined and gentle */}
     <path d="M46 30 Q 50 32.5 54 30" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" />
 
@@ -141,16 +142,5 @@ export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
     
     {/* Crown */}
     <path d="M45 5 L 47 0 L 50 3 L 53 0 L 55 5 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1"/>
-
-
-    {/* Arms (slender, resting on table) */}
-    <path d="M35 50 Q 28 60 22 70" stroke="hsl(var(--primary-foreground))" strokeWidth="3" fill="none" />
-     <path d="M36 50 Q 29 60 23 70" stroke="hsl(var(--primary))" strokeWidth="2" fill="none" /> {/* Slightly thinner for outline effect */}
-    <path d="M65 50 Q 72 60 78 70" stroke="hsl(var(--primary-foreground))" strokeWidth="3" fill="none" />
-    <path d="M64 50 Q 71 60 77 70" stroke="hsl(var(--primary))" strokeWidth="2" fill="none" /> {/* Slightly thinner for outline effect */}
-    
-    {/* Small plate/cup on table */}
-    <circle cx="30" cy="65" r="4" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" strokeWidth="1"/>
-    <path d="M28 62 Q 30 58 32 62" stroke="hsl(var(--border))" fill="hsl(var(--primary-foreground))" strokeWidth="1"/>
   </svg>
 );
