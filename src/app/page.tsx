@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon, PrincessIcon } from '@/components/icons'; // Updated import
+import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon, PrincessIcon } from '@/components/icons';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Gamepad2 } from 'lucide-react';
 
 const GAME_DURATION = 60; // seconds
@@ -218,13 +218,12 @@ export default function MaidMayhemGame() {
     foodItemsRef.current = [];
     setGameOver(false); 
     gameOverRef.current = false;
-    setShowControls(false);
+    // setShowControls(false); // Keep controls visibility state as per user preference
     // Character position will be reset by the useEffect below due to gameOver change
   };
 
   useEffect(() => { 
     if (isClient && gameAreaRef.current) {
-      const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
       const calculateCenter = () => {
         if (gameAreaRef.current) {
           const rect = gameAreaRef.current.getBoundingClientRect();
@@ -248,7 +247,7 @@ export default function MaidMayhemGame() {
   
   const TouchControls = () => (
     <div 
-        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20" // Removed sm:hidden
+        className="fixed bottom-8 right-8 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20"
         aria-label="Touch controls D-pad"
         style={{ WebkitTapHighlightColor: 'transparent' }}
     >
@@ -323,7 +322,7 @@ export default function MaidMayhemGame() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="p-1.5 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg" // Removed sm:hidden
+            className="p-1.5 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
             onClick={() => setShowControls(prev => !prev)}
             aria-label={showControls ? "Hide touch controls" : "Show touch controls"}
           >
@@ -345,13 +344,13 @@ export default function MaidMayhemGame() {
                 top: '10px',
                 left: '10px',
                 width: '60px', 
-                height: '90px', // Adjusted for aspect ratio
+                height: '90px', 
                 zIndex: 5 
             }}
             role="img"
-            aria-label="Princess character" // Updated aria-label
+            aria-label="Princess character"
         >
-            <PrincessIcon className="w-full h-full text-pink-400 drop-shadow-md" /> {/* Changed to PrincessIcon */}
+            <PrincessIcon className="w-full h-full text-pink-400 drop-shadow-md" />
         </div>
 
         <div
