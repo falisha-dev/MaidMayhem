@@ -94,7 +94,7 @@ export default function MaidMayhemGame() {
   useEffect(() => {
     scoreRef.current = score;
     // Update princess scale based on score
-    setPrincessScale(prevScale => Math.min(MAX_PRINCESS_SCALE, 1 + (score * PRINCESS_SCALE_INCREMENT / 10))); // Divide by 10 to make growth more gradual
+    setPrincessScale(prevScale => Math.min(MAX_PRINCESS_SCALE, 1 + (score * PRINCESS_SCALE_INCREMENT / 10))); 
   }, [score]);
 
   useEffect(() => {
@@ -129,8 +129,8 @@ export default function MaidMayhemGame() {
       newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX)); // 50 is character width
       newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY)); // 50 is character height
       
-      if (newX !== prev.x || newY !== prev.y) { // Only add particles if position changed
-        addParticles(newX + 25, newY + 25); // Center of character
+      if (newX !== prev.x || newY !== prev.y) { 
+        addParticles(newX + 25, newY + 25); 
       }
       return { x: newX, y: newY };
     });
@@ -170,8 +170,8 @@ export default function MaidMayhemGame() {
          if (prevFoodItems.length < MAX_FOOD_ITEMS ) { 
           const newFoodItem = {
             id: Date.now() + Math.random(),
-            x: Math.random() * (gameAreaRect.width - 30), // 30 is food width
-            y: Math.random() * (gameAreaRect.height - 30), // 30 is food height
+            x: Math.random() * (gameAreaRect.width - 30), 
+            y: Math.random() * (gameAreaRect.height - 30), 
             type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
           };
           return [...prevFoodItems, newFoodItem];
@@ -181,9 +181,9 @@ export default function MaidMayhemGame() {
     };
 
     const interval = setInterval(spawnFood, FOOD_SPAWN_INTERVAL);
-    spawnFood(); // Spawn one immediately
+    spawnFood(); 
     return () => clearInterval(interval);
-  }, [isClient, gameOver]); // Re-run if gameOver changes, to stop spawning
+  }, [isClient, gameOver]); 
 
   // Timer
   useEffect(() => {
@@ -381,7 +381,7 @@ export default function MaidMayhemGame() {
       <main 
         ref={gameAreaRef} 
         className="relative w-full h-[calc(100%-100px)] sm:h-[calc(100%-120px)] max-w-screen-lg bg-background/30 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
-        aria-hidden="true" // It's a game canvas, content described by other elements
+        aria-hidden="true" 
       >
         {/* Princess Character */}
         <div 
@@ -426,22 +426,21 @@ export default function MaidMayhemGame() {
         </AnimatePresence>
 
         {/* Character */}
-        <div
+        <motion.div
+          animate={{ x: characterPosition.x, y: characterPosition.y }}
+          transition={{ type: "spring", stiffness: 700, damping: 35, mass: 0.5 }}
           style={{
             position: 'absolute',
-            left: characterPosition.x,
-            top: characterPosition.y,
             width: '50px',
             height: '50px',
-            transition: 'left 0.1s linear, top 0.1s linear', 
-            zIndex: 10, 
+            zIndex: 10,
           }}
           className="flex items-center justify-center"
           role="img"
           aria-label="Maid character controlled by player"
         >
            <MaidIcon className="w-full h-full text-primary drop-shadow-lg" />
-        </div>
+        </motion.div>
 
         {/* Food Items */}
         {foodItems.map(food => (
