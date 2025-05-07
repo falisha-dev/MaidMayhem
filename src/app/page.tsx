@@ -103,7 +103,7 @@ export default function MaidMayhemGame() {
 
 
   const addParticles = (x: number, y: number) => {
-    const newParticle: Particle = { id: Date.now(), x, y, createdAt: Date.now() };
+    const newParticle: Particle = { id: Date.now() + Math.random(), x, y, createdAt: Date.now() };
     setParticles(prev => [...prev, newParticle]);
     setTimeout(() => {
       setParticles(prev => prev.filter(p => p.id !== newParticle.id));
@@ -126,8 +126,8 @@ export default function MaidMayhemGame() {
       if (direction === 'left') newX -= step;
       if (direction === 'right') newX += step;
       
-      newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX));
-      newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY));
+      newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX)); // 50 is character width
+      newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY)); // 50 is character height
       
       if (newX !== prev.x || newY !== prev.y) { // Only add particles if position changed
         addParticles(newX + 25, newY + 25); // Center of character
@@ -170,8 +170,8 @@ export default function MaidMayhemGame() {
          if (prevFoodItems.length < MAX_FOOD_ITEMS ) { 
           const newFoodItem = {
             id: Date.now() + Math.random(),
-            x: Math.random() * (gameAreaRect.width - 30),
-            y: Math.random() * (gameAreaRect.height - 30),
+            x: Math.random() * (gameAreaRect.width - 30), // 30 is food width
+            y: Math.random() * (gameAreaRect.height - 30), // 30 is food height
             type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
           };
           // console.log("Spawning food:", newFoodItem, "at", new Date().toLocaleTimeString());
@@ -282,13 +282,14 @@ export default function MaidMayhemGame() {
              setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
              characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
           } else {
+            // If dimensions are not ready, try again shortly
             setTimeout(calculateCenter, 100);
           }
         }
       };
       calculateCenter();
     }
-  }, [isClient, gameOver]);
+  }, [isClient, gameOver]); // Re-center on game start/restart and when client is ready
 
 
   if (!isClient) {
@@ -384,8 +385,9 @@ export default function MaidMayhemGame() {
       <main 
         ref={gameAreaRef} 
         className="relative w-full h-[calc(100%-100px)] sm:h-[calc(100%-120px)] max-w-screen-lg bg-background/30 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
-        aria-hidden="true"
+        aria-hidden="true" // It's a game canvas, content described by other elements
       >
+        {/* Princess Character */}
         <div 
             style={{
                 position: 'absolute',
@@ -393,17 +395,18 @@ export default function MaidMayhemGame() {
                 left: '10px',
                 width: '60px', 
                 height: '90px', 
-                zIndex: 5,
+                zIndex: 5, // Above food items, below character if overlapping, adjust as needed
                 transform: `scale(${princessScale})`,
                 transformOrigin: 'top left',
                 transition: 'transform 0.3s ease-out',
             }}
             role="img"
-            aria-label="Princess character"
+            aria-label="Princess character that grows when food is collected"
         >
             <PrincessIcon className="w-full h-full text-pink-400 drop-shadow-md" />
         </div>
 
+        {/* Particles */}
         <AnimatePresence>
           {particles.map(particle => (
             <motion.div
@@ -419,13 +422,14 @@ export default function MaidMayhemGame() {
                 width: '10px',
                 height: '10px',
               }}
-              className="pointer-events-none z-0" 
+              className="pointer-events-none z-0" // Particles should be behind character and food
             >
               <Sparkles className="w-full h-full text-accent" />
             </motion.div>
           ))}
         </AnimatePresence>
 
+        {/* Character */}
         <div
           style={{
             position: 'absolute',
@@ -433,16 +437,17 @@ export default function MaidMayhemGame() {
             top: characterPosition.y,
             width: '50px',
             height: '50px',
-            transition: 'left 0.05s linear, top 0.05s linear',
-            zIndex: 10, // Ensure character is above particles
+            transition: 'left 0.05s linear, top 0.05s linear', // Smoother animation
+            zIndex: 10, // Ensure character is above particles and food
           }}
           className="flex items-center justify-center"
           role="img"
-          aria-label="Maid character"
+          aria-label="Maid character controlled by player"
         >
            <MaidIcon className="w-full h-full text-primary drop-shadow-lg" />
         </div>
 
+        {/* Food Items */}
         {foodItems.map(food => (
           <div
             key={food.id}
@@ -484,3 +489,6 @@ export default function MaidMayhemGame() {
     </div>
   );
 }
+
+
+    
