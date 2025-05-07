@@ -130,10 +130,11 @@ export default function MaidMayhemGame() {
       }
       
       const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
+       if (gameAreaRect.width <= 0 || gameAreaRect.height <=0) return; // Don't spawn if area not ready
       
       // Use a functional update for setFoodItems to ensure it's using the latest state
       setFoodItems(prevFoodItems => {
-         if (prevFoodItems.length < MAX_FOOD_ITEMS && gameAreaRect.width > 0 && gameAreaRect.height > 0) { // Ensure game area has dimensions
+         if (prevFoodItems.length < MAX_FOOD_ITEMS ) { 
           return [
             ...prevFoodItems,
             {
@@ -151,7 +152,7 @@ export default function MaidMayhemGame() {
 
     const interval = setInterval(spawnFood, FOOD_SPAWN_INTERVAL);
     return () => clearInterval(interval);
-  }, [isClient]); // Removed gameAreaRef.current from dependencies as it's stable
+  }, [isClient]); 
 
   // Timer
   useEffect(() => {
@@ -202,14 +203,14 @@ export default function MaidMayhemGame() {
         setFoodItems(newFoodItems);
     }
 
-  }, [isClient, characterPosition]); // characterPosition is enough here as refs are for reads inside intervals/event handlers
+  }, [isClient, characterPosition]); 
   
   const restartGame = () => {
     setScore(0);
     setTimeLeft(GAME_DURATION);
-    setFoodItems([]); // This will trigger foodItemsRef update
-    setGameOver(false); // This will trigger gameOverRef update and the useEffect below
-    // Character position is reset by the useEffect below
+    setFoodItems([]); 
+    setGameOver(false); 
+    // Character position will be reset by the useEffect below due to gameOver change
   };
 
   useEffect(() => { 
@@ -218,7 +219,6 @@ export default function MaidMayhemGame() {
       if (gameAreaRect.width > 0 && gameAreaRect.height > 0) {
         setCharacterPosition({ x: gameAreaRect.width / 2 - 25 , y: gameAreaRect.height / 2 - 25 });
       } else {
-         // Fallback or retry logic if gameAreaRect is not ready
         setTimeout(() => {
           if (gameAreaRef.current) {
             const rect = gameAreaRef.current.getBoundingClientRect();
@@ -226,10 +226,10 @@ export default function MaidMayhemGame() {
                setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
             }
           }
-        }, 100); // Retry after a short delay
+        }, 100); 
       }
     }
-  }, [isClient, gameOver]); // Runs when isClient becomes true, or when gameOver changes
+  }, [isClient, gameOver]); 
 
 
   if (!isClient) {
@@ -237,18 +237,21 @@ export default function MaidMayhemGame() {
   }
   
   const TouchControls = () => (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 z-20 sm:hidden" aria-label="Touch controls">
-      <Button
-        className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
-        onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
-        onClick={() => moveCharacter('up')}
-        aria-label="Move Up"
-      >
-        <ArrowUp size={28} />
-      </Button>
-      <div className="flex gap-10">
+    <div 
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20 sm:hidden" 
+        aria-label="Touch controls D-pad"
+        style={{ WebkitTapHighlightColor: 'transparent' }}
+    >
         <Button
-            className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
+            className="col-start-2 row-start-1 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+            onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
+            onClick={() => moveCharacter('up')}
+            aria-label="Move Up"
+        >
+            <ArrowUp size={28} />
+        </Button>
+        <Button
+            className="col-start-1 row-start-2 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('left');}}
             onClick={() => moveCharacter('left')}
             aria-label="Move Left"
@@ -256,16 +259,15 @@ export default function MaidMayhemGame() {
             <ArrowLeft size={28} />
         </Button>
         <Button
-            className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
+            className="col-start-3 row-start-2 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('right');}}
             onClick={() => moveCharacter('right')}
             aria-label="Move Right"
         >
             <ArrowRight size={28} />
         </Button>
-      </div>
-       <Button
-            className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
+        <Button
+            className="col-start-2 row-start-3 p-0 w-12 h-12 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('down');}}
             onClick={() => moveCharacter('down')}
             aria-label="Move Down"
@@ -278,7 +280,7 @@ export default function MaidMayhemGame() {
 
   return (
     <div 
-      className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none"
+      className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none bg-secondary"
       style={{ 
         WebkitTapHighlightColor: 'transparent' 
       }}
@@ -314,7 +316,7 @@ export default function MaidMayhemGame() {
       {/* Game Area */}
       <main 
         ref={gameAreaRef} 
-        className="relative w-[calc(100%-2rem)] h-[calc(100%-8rem)] sm:w-[calc(100%-4rem)] sm:h-[calc(100%-10rem)] max-w-screen-lg max-h-[700px] bg-black/10 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
+        className="relative w-[calc(100%-2rem)] h-[calc(100%-8rem)] sm:w-[calc(100%-4rem)] sm:h-[calc(100%-10rem)] max-w-screen-lg max-h-[700px] bg-background/30 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
         aria-hidden="true"
       >
         <div
@@ -373,7 +375,3 @@ export default function MaidMayhemGame() {
     </div>
   );
 }
-
-
-    
-
