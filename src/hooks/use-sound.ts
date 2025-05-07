@@ -7,10 +7,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 // In a real app, these would be paths to your audio files
 // For now, we'll use placeholders. Genkit could potentially generate these if needed.
 const SOUND_PATHS = {
-  collect: 'https://actions.google.com/sounds/v1/cartoon/pop.ogg', // Example public domain sound
-  move: 'https://actions.google.com/sounds/v1/sports/pool_ball_pocket.ogg', // Example public domain sound (short click)
-  gameOver: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg', // Example public domain sound
-  backgroundMusic: 'https://actions.google.com/sounds/v1/ambiences/arcade_room.ogg', // Example public domain sound (loopable)
+  collect: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Changed to a more relaxing chime
+  move: 'https://actions.google.com/sounds/v1/sports/pool_ball_pocket.ogg', 
+  gameOver: 'https://actions.google.com/sounds/v1/events/completion_positive.ogg', // Changed to a positive completion sound
+  backgroundMusic: 'https://actions.google.com/sounds/v1/ambiences/arcade_room.ogg', 
 };
 
 export type SoundType = keyof typeof SOUND_PATHS;
@@ -118,3 +118,4 @@ export function useSound(soundType: SoundType, options?: UseSoundOptions, deps: 
 
   return { play, stop, isPlaying, togglePlay, audioEl: audioRef.current };
 }
+
