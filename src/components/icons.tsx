@@ -103,8 +103,12 @@ export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
     <line x1="15" y1="95" x2="15" y2="100" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
     <line x1="85" y1="95" x2="85" y2="100" strokeWidth="3" stroke="hsl(var(--muted-foreground))"/>
     
-    {/* Princess Body (elegant gown shape) */}
-    <path d="M50 70 C 35 70, 25 55, 30 40 Q 50 28 70 40 C 75 55, 65 70, 50 70 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+    {/* Princess Body (elegant ball gown shape) */}
+    <path d="M50 40 C 40 40, 35 45, 30 50 L 20 70 L 80 70 L 70 50 C 65 45, 60 40, 50 40 Z M30 50 C 30 55, 25 65, 20 70 M 70 50 C 70 55, 75 65, 80 70" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+    {/* Bodice detail */}
+     <path d="M50 40 Q 38 42 35 50  Q 38 58 50 60 Q 62 58 65 50 Q 62 42 50 40 Z" fill="hsl(var(--primary)/0.7)" stroke="hsl(var(--primary))" strokeWidth="1"/>
+
+
     {/* Neck */}
     <rect x="47" y="35" width="6" height="5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
 
@@ -128,27 +132,25 @@ export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M46 30 Q 50 32.5 54 30" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" />
 
     {/* Princess Hair (flowing, elegant bun or waves) */}
-    <path d="M38 25 Q 35 10 50 8 Q 65 10 62 25" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="1.5" />
-    <path d="M38 25 C 36 30, 37 35, 43 36" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" strokeWidth="1.5"/>
-    <path d="M62 25 C 64 30, 63 35, 57 36" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" strokeWidth="1.5"/>
-    {/* Hair bun/detail */}
-    <circle cx="50" cy="12" r="5" fill="hsl(50 100% 70%)" stroke="hsl(50 100% 60%)" strokeWidth="1.5"/>
-    <path d="M48 10 Q 50 14 52 10" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
-
-
+    {/* Main hair mass */}
+    <path d="M38 25 Q 35 10 50 8 Q 65 10 62 25 C 65 15, 68 28, 62 33 C 58 38, 42 38, 38 33 C 32 28, 35 15, 38 25 Z" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="1.5" />
+    {/* Hair details/waves */}
+    <path d="M40 15 Q 50 20 60 15" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
+    <path d="M42 20 Q 50 25 58 20" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
+    <path d="M45 25 Q 50 30 55 25" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
+    
     {/* Crown */}
     <path d="M45 5 L 47 0 L 50 3 L 53 0 L 55 5 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1"/>
 
 
     {/* Arms (slender, resting on table) */}
-    <path d="M35 50 Q 28 60 22 70" stroke="hsl(var(--primary-foreground))" strokeWidth="2.5" fill="none" />
-     <path d="M36 50 Q 29 60 23 70" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
-    <path d="M65 50 Q 72 60 78 70" stroke="hsl(var(--primary-foreground))" strokeWidth="2.5" fill="none" />
-    <path d="M64 50 Q 71 60 77 70" stroke="hsl(var(--primary))" strokeWidth="1.5" fill="none" />
+    <path d="M35 50 Q 28 60 22 70" stroke="hsl(var(--primary-foreground))" strokeWidth="3" fill="none" />
+     <path d="M36 50 Q 29 60 23 70" stroke="hsl(var(--primary))" strokeWidth="2" fill="none" /> {/* Slightly thinner for outline effect */}
+    <path d="M65 50 Q 72 60 78 70" stroke="hsl(var(--primary-foreground))" strokeWidth="3" fill="none" />
+    <path d="M64 50 Q 71 60 77 70" stroke="hsl(var(--primary))" strokeWidth="2" fill="none" /> {/* Slightly thinner for outline effect */}
     
     {/* Small plate/cup on table */}
     <circle cx="30" cy="65" r="4" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--border))" strokeWidth="1"/>
     <path d="M28 62 Q 30 58 32 62" stroke="hsl(var(--border))" fill="hsl(var(--primary-foreground))" strokeWidth="1"/>
   </svg>
 );
-
