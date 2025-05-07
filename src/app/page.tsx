@@ -1,4 +1,3 @@
-
 "use client";
 
 import Head from 'next/head';
@@ -10,7 +9,7 @@ import { MaidIcon, CakeIcon, SushiIcon, DonutIcon, BittenAppleIcon, CherryIcon, 
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Gamepad2, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
-import { useSound } from '@/hooks/use-sound';
+import { useSound } from "@/hooks/use-sound";
 
 
 const GAME_DURATION = 60; // seconds
@@ -62,6 +61,7 @@ export default function MaidMayhemGame() {
   const [isMuted, setIsMuted] = useState(false);
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const particleIdCounter = useRef(0);
 
 
   // Refs for state values used in intervals/event listeners
@@ -99,7 +99,7 @@ export default function MaidMayhemGame() {
 
   useEffect(() => {
     scoreRef.current = score;
-    setPrincessScale(prevScale => Math.min(MAX_PRINCESS_SCALE, 1 + (score * PRINCESS_SCALE_INCREMENT / 10))); 
+    setPrincessScale(prevScale => Math.min(MAX_PRINCESS_SCALE, 1 + (score * PRINCESS_SCALE_INCREMENT / 10)));
   }, [score]);
 
   useEffect(() => {
@@ -123,7 +123,8 @@ export default function MaidMayhemGame() {
 
 
   const addParticles = (x: number, y: number) => {
-    const newParticle: Particle = { id: Date.now() + Math.random(), x, y, createdAt: Date.now() };
+    particleIdCounter.current += 1;
+    const newParticle: Particle = { id: particleIdCounter.current, x, y, createdAt: Date.now() };
     setParticles(prev => [...prev, newParticle]);
     setTimeout(() => {
       setParticles(prev => prev.filter(p => p.id !== newParticle.id));
@@ -133,7 +134,7 @@ export default function MaidMayhemGame() {
 
   const moveCharacter = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
     if (gameOverRef.current || !gameAreaRef.current) return;
-    
+
     const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
 
     setCharacterPosition(prev => {
@@ -145,12 +146,12 @@ export default function MaidMayhemGame() {
       if (direction === 'down') newY += step;
       if (direction === 'left') newX -= step;
       if (direction === 'right') newX += step;
-      
+
       newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX)); // 50 is character width
       newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY)); // 50 is character height
-      
-      if (newX !== prev.x || newY !== prev.y) { 
-        addParticles(newX + 25, newY + 25); 
+
+      if (newX !== prev.x || newY !== prev.y) {
+        addParticles(newX + 25, newY + 25);
         playMoveSound();
       }
       return { x: newX, y: newY };
@@ -163,7 +164,7 @@ export default function MaidMayhemGame() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
         if (gameOverRef.current) return;
-        
+
         if (e.key === 'ArrowUp') { e.preventDefault(); moveCharacter('up'); }
         else if (e.key === 'ArrowDown') { e.preventDefault(); moveCharacter('down'); }
         else if (e.key === 'ArrowLeft') { e.preventDefault(); moveCharacter('left'); }
@@ -172,7 +173,7 @@ export default function MaidMayhemGame() {
 
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
-    
+
   }, [isClient, moveCharacter]);
 
   // Spawn food items
@@ -183,16 +184,16 @@ export default function MaidMayhemGame() {
       if (gameOverRef.current || !gameAreaRef.current || foodItemsRef.current.length >= MAX_FOOD_ITEMS) {
         return;
       }
-      
+
       const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
-       if (gameAreaRect.width <= 0 || gameAreaRect.height <=0) return; 
-      
+       if (gameAreaRect.width <= 0 || gameAreaRect.height <=0) return;
+
       setFoodItems(prevFoodItems => {
-         if (prevFoodItems.length < MAX_FOOD_ITEMS ) { 
+         if (prevFoodItems.length < MAX_FOOD_ITEMS ) {
           const newFoodItem = {
-            id: Date.now() + Math.random(),
-            x: Math.random() * (gameAreaRect.width - 30), 
-            y: Math.random() * (gameAreaRect.height - 30), 
+            id: Date.now() + Math.random(), // This ID is for food items, not particles. Keeping as is for now.
+            x: Math.random() * (gameAreaRect.width - 30),
+            y: Math.random() * (gameAreaRect.height - 30),
             type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
           };
           return [...prevFoodItems, newFoodItem];
@@ -202,9 +203,9 @@ export default function MaidMayhemGame() {
     };
 
     const interval = setInterval(spawnFood, FOOD_SPAWN_INTERVAL);
-    spawnFood(); 
+    spawnFood();
     return () => clearInterval(interval);
-  }, [isClient, gameOver]); 
+  }, [isClient, gameOver]);
 
   // Timer
   useEffect(() => {
@@ -220,7 +221,7 @@ export default function MaidMayhemGame() {
     const timer = setInterval(() => {
       if (timeLeftRef.current <= 1) {
           setGameOver(true);
-          setTimeLeft(0); 
+          setTimeLeft(0);
           clearInterval(timer);
           stopBackgroundMusic();
           playGameOverSound();
@@ -234,7 +235,7 @@ export default function MaidMayhemGame() {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [isClient, gameOver, toast, playGameOverSound, stopBackgroundMusic]); 
+  }, [isClient, gameOver, toast, playGameOverSound, stopBackgroundMusic]);
 
   // Collision detection
   useEffect(() => {
@@ -260,9 +261,9 @@ export default function MaidMayhemGame() {
             description: `Collected ${food.type.name}! +${food.type.points} points`,
             duration: 1500,
         });
-        return false; 
+        return false;
       }
-      return true; 
+      return true;
     });
 
     if (itemsCollectedThisFrame > 0) {
@@ -270,21 +271,22 @@ export default function MaidMayhemGame() {
         setScore(prevScore => prevScore + pointsCollectedThisFrame);
     }
 
-  }, [isClient, characterPosition, toast, playCollectSound]); 
-  
+  }, [isClient, characterPosition, toast, playCollectSound]);
+
   const restartGame = () => {
     setScore(0);
     scoreRef.current = 0;
     setTimeLeft(GAME_DURATION);
     timeLeftRef.current = GAME_DURATION;
-    setFoodItems([]); 
+    setFoodItems([]);
     foodItemsRef.current = [];
-    setGameOver(false); 
+    setGameOver(false);
     gameOverRef.current = false;
     setPrincessScale(1);
-    if (gameAreaRef.current) { 
+    particleIdCounter.current = 0; // Reset particle ID counter
+    if (gameAreaRef.current) {
       const rect = gameAreaRef.current.getBoundingClientRect();
-       if (rect.width > 0 && rect.height > 0) { 
+       if (rect.width > 0 && rect.height > 0) {
         setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
         characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
       }
@@ -299,7 +301,7 @@ export default function MaidMayhemGame() {
     });
   };
 
-  useEffect(() => { 
+  useEffect(() => {
     if (isClient && gameAreaRef.current) {
       const calculateCenter = () => {
         if (gameAreaRef.current) {
@@ -320,9 +322,9 @@ export default function MaidMayhemGame() {
   if (!isClient) {
     return <div className="w-screen h-screen flex items-center justify-center bg-secondary"><p className="text-2xl text-primary">Loading Game...</p></div>;
   }
-  
+
   const TouchControls = () => (
-    <div 
+    <div
         className="fixed bottom-4 right-4 md:bottom-8 md:right-8 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20"
         aria-label="Touch controls D-pad"
         style={{ WebkitTapHighlightColor: 'transparent' }}
@@ -364,9 +366,9 @@ export default function MaidMayhemGame() {
 
 
   return (
-    <div 
+    <div
       className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none bg-secondary p-2 sm:p-4"
-      style={{ 
+      style={{
         WebkitTapHighlightColor: 'transparent' // Prevents blue flash on tap for touch controls
       }}
     >
@@ -395,9 +397,9 @@ export default function MaidMayhemGame() {
               <p className="text-base sm:text-2xl font-bold text-primary-foreground">{timeLeft}</p>
             </CardContent>
           </Card>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="p-1.5 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
             onClick={() => setShowControls(prev => !prev)}
             aria-label={showControls ? "Hide touch controls" : "Show touch controls"}
@@ -415,21 +417,21 @@ export default function MaidMayhemGame() {
           </Button>
         </div>
       </header>
-      
-      <main 
-        ref={gameAreaRef} 
+
+      <main
+        ref={gameAreaRef}
         className="relative w-full h-[calc(100%-100px)] sm:h-[calc(100%-120px)] max-w-screen-lg bg-background/30 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
         aria-hidden="true" // Game area is not primary content for screen readers
       >
         {/* Princess Character */}
-        <div 
+        <div
             style={{
                 position: 'absolute',
                 top: '10px',
                 left: '10px',
-                width: '60px', 
-                height: '90px', 
-                zIndex: 5, 
+                width: '60px',
+                height: '90px',
+                zIndex: 5,
                 transform: `scale(${princessScale})`,
                 transformOrigin: 'top left',
                 transition: 'transform 0.3s ease-out',
@@ -522,4 +524,3 @@ export default function MaidMayhemGame() {
     </div>
   );
 }
-
