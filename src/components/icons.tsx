@@ -132,6 +132,10 @@ export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
     {/* Smile - more defined and gentle */}
     <path d="M46 30 Q 50 32.5 54 30" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" />
 
+    {/* Blush */}
+    <ellipse cx="43" cy="27" rx="3" ry="1.5" fill="hsl(0, 100%, 80%)" opacity="0.6" />
+    <ellipse cx="57" cy="27" rx="3" ry="1.5" fill="hsl(0, 100%, 80%)" opacity="0.6" />
+
     {/* Princess Hair (flowing, elegant bun or waves) */}
     {/* Main hair mass */}
     <path d="M38 25 Q 35 10 50 8 Q 65 10 62 25 C 65 15, 68 28, 62 33 C 58 38, 42 38, 38 33 C 32 28, 35 15, 38 25 Z" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="1.5" />
