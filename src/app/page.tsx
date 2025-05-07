@@ -48,6 +48,8 @@ export default function MaidMayhemGame() {
   const timeLeftRef = useRef(timeLeft);
   const gameOverRef = useRef(gameOver);
   const foodItemsRef = useRef(foodItems);
+  const scoreRef = useRef(score);
+  const characterPositionRef = useRef(characterPosition);
 
 
   useEffect(() => {
@@ -67,9 +69,17 @@ export default function MaidMayhemGame() {
     foodItemsRef.current = foodItems;
   }, [foodItems]);
 
+  useEffect(() => {
+    scoreRef.current = score;
+  }, [score]);
+
+  useEffect(() => {
+    characterPositionRef.current = characterPosition;
+  }, [characterPosition]);
+
 
   const moveCharacter = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
-    if (!isClient || gameOverRef.current || !gameAreaRef.current) return;
+    if (gameOverRef.current || !gameAreaRef.current) return;
     
     const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
 
@@ -90,7 +100,7 @@ export default function MaidMayhemGame() {
       
       return { x: newX, y: newY };
     });
-  }, [isClient]);
+  }, []);
 
   // Keyboard controls
   useEffect(() => {
@@ -121,8 +131,9 @@ export default function MaidMayhemGame() {
       
       const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
       
+      // Use a functional update for setFoodItems to ensure it's using the latest state
       setFoodItems(prevFoodItems => {
-         if (prevFoodItems.length < MAX_FOOD_ITEMS) {
+         if (prevFoodItems.length < MAX_FOOD_ITEMS && gameAreaRect.width > 0 && gameAreaRect.height > 0) { // Ensure game area has dimensions
           return [
             ...prevFoodItems,
             {
@@ -140,7 +151,7 @@ export default function MaidMayhemGame() {
 
     const interval = setInterval(spawnFood, FOOD_SPAWN_INTERVAL);
     return () => clearInterval(interval);
-  }, [isClient]);
+  }, [isClient]); // Removed gameAreaRef.current from dependencies as it's stable
 
   // Timer
   useEffect(() => {
@@ -152,14 +163,14 @@ export default function MaidMayhemGame() {
     if (gameOverRef.current) return;
 
     const timer = setInterval(() => {
-      setTimeLeft(prevTime => {
-        if (prevTime <= 1) {
+      // Use the ref for reading the current time left inside the interval
+      if (timeLeftRef.current <= 1) {
           setGameOver(true);
+          setTimeLeft(0); // Ensure timeLeft state is also set to 0
           clearInterval(timer);
-          return 0;
-        }
-        return prevTime - 1;
-      });
+      } else {
+          setTimeLeft(prevTime => prevTime - 1);
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, [isClient]);
@@ -168,8 +179,10 @@ export default function MaidMayhemGame() {
   useEffect(() => {
     if (!isClient || gameOverRef.current) return;
 
+    const charRect = { x: characterPositionRef.current.x, y: characterPositionRef.current.y, width: 50, height: 50 };
+    let itemsCollected = 0;
+
     const newFoodItems = foodItemsRef.current.filter(food => {
-      const charRect = { x: characterPosition.x, y: characterPosition.y, width: 50, height: 50 };
       const foodRect = { x: food.x, y: food.y, width: 30, height: 30 };
 
       if (
@@ -179,29 +192,42 @@ export default function MaidMayhemGame() {
         charRect.y + charRect.height > foodRect.y
       ) {
         setScore(prevScore => prevScore + food.type.points);
+        itemsCollected++;
         return false; // Remove collected food
       }
       return true; // Keep uncollected food
     });
 
-    if (newFoodItems.length !== foodItemsRef.current.length) {
+    if (itemsCollected > 0) {
         setFoodItems(newFoodItems);
     }
 
-  }, [isClient, characterPosition]);
+  }, [isClient, characterPosition]); // characterPosition is enough here as refs are for reads inside intervals/event handlers
   
   const restartGame = () => {
     setScore(0);
     setTimeLeft(GAME_DURATION);
-    setFoodItems([]);
-    setGameOver(false);
+    setFoodItems([]); // This will trigger foodItemsRef update
+    setGameOver(false); // This will trigger gameOverRef update and the useEffect below
     // Character position is reset by the useEffect below
   };
 
   useEffect(() => { 
     if (isClient && gameAreaRef.current) {
       const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
-      setCharacterPosition({ x: gameAreaRect.width / 2 - 25 , y: gameAreaRect.height / 2 - 25 });
+      if (gameAreaRect.width > 0 && gameAreaRect.height > 0) {
+        setCharacterPosition({ x: gameAreaRect.width / 2 - 25 , y: gameAreaRect.height / 2 - 25 });
+      } else {
+         // Fallback or retry logic if gameAreaRect is not ready
+        setTimeout(() => {
+          if (gameAreaRef.current) {
+            const rect = gameAreaRef.current.getBoundingClientRect();
+            if (rect.width > 0 && rect.height > 0) {
+               setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
+            }
+          }
+        }, 100); // Retry after a short delay
+      }
     }
   }, [isClient, gameOver]); // Runs when isClient becomes true, or when gameOver changes
 
