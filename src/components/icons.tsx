@@ -97,52 +97,71 @@ export const CherryIcon = (props: SVGProps<SVGSVGElement>) => (
 
 
 export const PrincessAtTableIcon = (props: SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" strokeWidth="1.5" {...props}>
     {/* Head */}
-    <circle cx="50" cy="25" r="10" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
-    {/* Eyes - larger and more expressive */}
-    <ellipse cx="45" cy="23" rx="2.5" ry="3.5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1"/>
-    <circle cx="45" cy="23.5" r="1" fill="hsl(var(--primary))" /> 
-    <ellipse cx="55" cy="23" rx="2.5" ry="3.5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1"/>
-    <circle cx="55" cy="23.5" r="1" fill="hsl(var(--primary))" />
-    {/* Eyelashes */}
-    <path d="M42.5 21 Q 43.5 19 45 19.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none"/>
-    <path d="M44.5 20 Q 45.5 18 47 18.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none"/>
-    <path d="M52.5 21 Q 53.5 19 55 19.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none" transform="scale(-1, 1) translate(-100, 0)"/>
-    <path d="M54.5 20 Q 55.5 18 57 18.5" stroke="hsl(var(--primary))" strokeWidth="0.7" fill="none" transform="scale(-1, 1) translate(-109, 0)"/>
-    {/* Smile - more defined and gentle */}
-    <path d="M46 30 Q 50 32.5 54 30" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" />
+    <circle cx="50" cy="25" r="12" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+    
+    {/* Eyes - larger and more expressive with sparkle */}
+    <ellipse cx="44" cy="23" rx="3" ry="4.5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <circle cx="44" cy="24" r="1.5" fill="hsl(var(--primary))" /> 
+    <circle cx="43" cy="22" r="0.75" fill="white" /> {/* Sparkle */}
+    
+    <ellipse cx="56" cy="23" rx="3" ry="4.5" fill="white" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <circle cx="56" cy="24" r="1.5" fill="hsl(var(--primary))" />
+    <circle cx="55" cy="22" r="0.75" fill="white" /> {/* Sparkle */}
+
+    {/* Eyelashes - more delicate */}
+    <path d="M40 20 Q 42 18 44 19" stroke="hsl(var(--primary))" strokeWidth="0.8" fill="none"/>
+    <path d="M41.5 21.5 Q 43 19.5 45 20.5" stroke="hsl(var(--primary))" strokeWidth="0.8" fill="none"/>
+    
+    <path d="M60 20 Q 58 18 56 19" stroke="hsl(var(--primary))" strokeWidth="0.8" fill="none"/>
+    <path d="M58.5 21.5 Q 57 19.5 55 20.5" stroke="hsl(var(--primary))" strokeWidth="0.8" fill="none"/>
+
+    {/* Smile - gentle and sweet */}
+    <path d="M46 31 Q 50 34 54 31" stroke="hsl(var(--primary))" strokeWidth="1.2" fill="none" />
+    
     {/* Blush */}
-    <ellipse cx="43" cy="27" rx="3" ry="1.5" fill="hsl(0, 100%, 80%)" opacity="0.6" />
-    <ellipse cx="57" cy="27" rx="3" ry="1.5" fill="hsl(0, 100%, 80%)" opacity="0.6" />
+    <ellipse cx="40" cy="28" rx="3.5" ry="2" fill="hsl(0, 100%, 85%)" opacity="0.7" />
+    <ellipse cx="60" cy="28" rx="3.5" ry="2" fill="hsl(0, 100%, 85%)" opacity="0.7" />
 
-    {/* Hair (flowing, elegant bun or waves) */}
-    {/* Main hair mass */}
-    <path d="M38 25 Q 35 10 50 8 Q 65 10 62 25 C 65 15, 68 28, 62 33 C 58 38, 42 38, 38 33 C 32 28, 35 15, 38 25 Z" stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="1.5" />
-    {/* Hair details/waves */}
-    <path d="M40 15 Q 50 20 60 15" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
-    <path d="M42 20 Q 50 25 58 20" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
-    <path d="M45 25 Q 50 30 55 25" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
-    {/* Crown */}
-    <path d="M45 5 L 47 0 L 50 3 L 53 0 L 55 5 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1"/>
+    {/* Hair - Flowing style */}
+    <path d="M38 25 Q 25 35 38 45 C 35 15 50 5 50 5 C 50 5 65 15 62 45 Q 75 35 62 25 C 65 20 60 10 50 10 C 40 10 35 20 38 25 Z"
+          stroke="hsl(50 100% 60%)" fill="hsl(50 100% 70%)" strokeWidth="1.5" />
+    <path d="M50 5 C 45 12, 40 15, 38 20" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
+    <path d="M50 5 C 55 12, 60 15, 62 20" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
+    <path d="M42 35 Q 50 40 58 35" stroke="hsl(50 100% 50%)" strokeWidth="1" fill="none"/>
 
-    {/* Body - Torso */}
-    <path d="M42 35 C 42 40, 40 45, 50 45 C 60 45, 58 40, 58 35 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+
+    {/* Crown - more detailed */}
+    <path d="M42 6 L 45 -2 L 50 4 L 55 -2 L 58 6 L 50 8 Z" fill="hsl(var(--accent))" stroke="hsl(var(--accent-foreground))" strokeWidth="1"/>
+    <circle cx="45" cy="0" r="1" fill="hsl(var(--destructive))" />
+    <circle cx="50" cy="5.5" r="1" fill="hsl(var(--destructive))" />
+    <circle cx="55" cy="0" r="1" fill="hsl(var(--destructive))" />
+
+
+    {/* Body - Torso (elegant neckline) */}
+    <path d="M40 37 C 40 42, 42 48, 50 48 C 58 48, 60 42, 60 37 L 55 37 Q 50 39 45 37 Z" 
+          fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
     
     {/* Ball Gown Skirt - wide and flowing */}
-    <path d="M30 45 C 10 60, 5 80, 2 95 L 98 95 C 95 80, 90 60, 70 45 Z" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
+    <path d="M25 48 C 5 65, 0 85, 2 98 L 98 98 C 100 85, 95 65, 75 48 Z" 
+          fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
     
-    {/* Arms (simple, elegant pose) */}
+    {/* Arms (graceful pose) */}
     {/* Left Arm */}
-    <path d="M42 40 C 38 45, 35 55, 35 60" stroke="hsl(var(--primary-foreground))" fill="none" strokeWidth="2"/>
-    <circle cx="35" cy="62" r="3" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <path d="M40 42 C 35 48, 30 58, 32 65" stroke="hsl(var(--primary-foreground))" fill="none" strokeWidth="2.5"/>
+    <circle cx="31" cy="67" r="3.5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
     {/* Right Arm */}
-    <path d="M58 40 C 62 45, 65 55, 65 60" stroke="hsl(var(--primary-foreground))" fill="none" strokeWidth="2"/>
-    <circle cx="65" cy="62" r="3" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1"/>
+    <path d="M60 42 C 65 48, 70 58, 68 65" stroke="hsl(var(--primary-foreground))" fill="none" strokeWidth="2.5"/>
+    <circle cx="69" cy="67" r="3.5" fill="hsl(var(--primary-foreground))" stroke="hsl(var(--primary))" strokeWidth="1.5"/>
 
-    {/* Optional details for gown */}
-    <path d="M50 45 Q 40 55 30 65" stroke="hsl(var(--primary)/0.5)" strokeWidth="1" fill="none"/>
-    <path d="M50 45 Q 60 55 70 65" stroke="hsl(var(--primary)/0.5)" strokeWidth="1" fill="none"/>
-    <path d="M20 95 Q 50 85 80 95" stroke="hsl(var(--primary)/0.5)" strokeWidth="1" fill="none"/>
+    {/* Gown details - subtle folds or patterns */}
+    <path d="M50 48 Q 35 60 28 75" stroke="hsl(var(--primary)/0.6)" strokeWidth="1.5" fill="none"/>
+    <path d="M50 48 Q 65 60 72 75" stroke="hsl(var(--primary)/0.6)" strokeWidth="1.5" fill="none"/>
+    <path d="M15 98 Q 50 88 85 98" stroke="hsl(var(--primary)/0.6)" strokeWidth="1.5" fill="none"/>
+    <ellipse cx="50" cy="65" rx="20" ry="8" fill="hsl(var(--primary)/0.3)" />
   </svg>
 );
+
+
+    
