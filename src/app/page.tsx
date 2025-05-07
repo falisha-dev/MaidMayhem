@@ -1,3 +1,4 @@
+
 "use client";
 
 import Head from 'next/head';
@@ -41,9 +42,13 @@ export default function MaidMayhemGame() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [gameOver, setGameOver] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const gameAreaRef = useRef<HTMLDivElement>(null);
 
   // Refs for state values used in intervals/event listeners
   const timeLeftRef = useRef(timeLeft);
+  const gameOverRef = useRef(gameOver);
+  const foodItemsRef = useRef(foodItems);
+
 
   useEffect(() => {
     setIsClient(true);
@@ -54,8 +59,20 @@ export default function MaidMayhemGame() {
     timeLeftRef.current = timeLeft;
   }, [timeLeft]);
 
+  useEffect(() => {
+    gameOverRef.current = gameOver;
+  }, [gameOver]);
+
+  useEffect(() => {
+    foodItemsRef.current = foodItems;
+  }, [foodItems]);
+
+
   const moveCharacter = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
-    if (!isClient || gameOver) return;
+    if (!isClient || gameOverRef.current || !gameAreaRef.current) return;
+    
+    const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
+
     setCharacterPosition(prev => {
       let newX = prev.x;
       let newY = prev.y;
@@ -66,21 +83,21 @@ export default function MaidMayhemGame() {
       if (direction === 'left') newX -= step;
       if (direction === 'right') newX += step;
       
-      const gameWidth = window.innerWidth;
-      const gameHeight = window.innerHeight;
-      newX = Math.max(0, Math.min(gameWidth > 50 ? gameWidth - 50 : 0, newX));
-      newY = Math.max(0, Math.min(gameHeight > 50 ? gameHeight - 50 : 0, newY));
+      // Ensure character stays within the game area bounds
+      // Character size is 50x50
+      newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX));
+      newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY));
       
       return { x: newX, y: newY };
     });
-  }, [isClient, gameOver]);
+  }, [isClient]);
 
   // Keyboard controls
   useEffect(() => {
     if (!isClient) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-        if (gameOver) return;
+        if (gameOverRef.current) return;
         
         if (e.key === 'ArrowUp') moveCharacter('up');
         else if (e.key === 'ArrowDown') moveCharacter('down');
@@ -91,56 +108,67 @@ export default function MaidMayhemGame() {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     
-  }, [isClient, gameOver, moveCharacter]);
+  }, [isClient, moveCharacter]);
 
   // Spawn food items
   useEffect(() => {
-    if (!isClient || gameOver) {
-      return; // Interval will be cleaned up by the return function if game is over
-    }
+    if (!isClient) return;
 
-    const interval = setInterval(() => {
+    const spawnFood = () => {
+      if (gameOverRef.current || !gameAreaRef.current || foodItemsRef.current.length >= MAX_FOOD_ITEMS) {
+        return;
+      }
+      
+      const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
+      
       setFoodItems(prevFoodItems => {
-        if (prevFoodItems.length < MAX_FOOD_ITEMS && timeLeftRef.current > 0) {
-          const gameWidth = window.innerWidth;
-          const gameHeight = window.innerHeight;
+         if (prevFoodItems.length < MAX_FOOD_ITEMS) {
           return [
             ...prevFoodItems,
             {
               id: Date.now() + Math.random(),
-              x: Math.random() * (gameWidth > 30 ? gameWidth - 30 : 0),
-              y: Math.random() * (gameHeight > 30 ? gameHeight - 30 : 0),
+              // Food item size is 30x30
+              x: Math.random() * (gameAreaRect.width - 30),
+              y: Math.random() * (gameAreaRect.height - 30),
               type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
             }
           ];
         }
         return prevFoodItems;
       });
-    }, FOOD_SPAWN_INTERVAL);
+    };
 
-    return () => clearInterval(interval); // Cleanup interval
-  }, [isClient, gameOver]); // Dependencies for setting up/tearing down the interval
+    const interval = setInterval(spawnFood, FOOD_SPAWN_INTERVAL);
+    return () => clearInterval(interval);
+  }, [isClient]);
 
   // Timer
   useEffect(() => {
     if (!isClient) return;
-    if (timeLeft <= 0) {
+    if (timeLeftRef.current <= 0 && !gameOverRef.current) {
       setGameOver(true);
       return;
     }
-    if (gameOver) return;
+    if (gameOverRef.current) return;
 
     const timer = setInterval(() => {
-      setTimeLeft(prevTime => prevTime - 1);
+      setTimeLeft(prevTime => {
+        if (prevTime <= 1) {
+          setGameOver(true);
+          clearInterval(timer);
+          return 0;
+        }
+        return prevTime - 1;
+      });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isClient, timeLeft, gameOver]);
+  }, [isClient]);
 
   // Collision detection
   useEffect(() => {
-    if (!isClient || gameOver) return;
+    if (!isClient || gameOverRef.current) return;
 
-    foodItems.forEach(food => {
+    const newFoodItems = foodItemsRef.current.filter(food => {
       const charRect = { x: characterPosition.x, y: characterPosition.y, width: 50, height: 50 };
       const foodRect = { x: food.x, y: food.y, width: 30, height: 30 };
 
@@ -151,24 +179,29 @@ export default function MaidMayhemGame() {
         charRect.y + charRect.height > foodRect.y
       ) {
         setScore(prevScore => prevScore + food.type.points);
-        setFoodItems(prevItems => prevItems.filter(item => item.id !== food.id));
+        return false; // Remove collected food
       }
+      return true; // Keep uncollected food
     });
-  }, [isClient, characterPosition, foodItems, gameOver]);
+
+    if (newFoodItems.length !== foodItemsRef.current.length) {
+        setFoodItems(newFoodItems);
+    }
+
+  }, [isClient, characterPosition]);
   
   const restartGame = () => {
     setScore(0);
     setTimeLeft(GAME_DURATION);
     setFoodItems([]);
     setGameOver(false);
-    // Character position is reset by the useEffect below that depends on `gameOver`
+    // Character position is reset by the useEffect below
   };
 
-  useEffect(() => { // Center character on game start/restart
-    if (isClient) {
-      const gameWidth = window.innerWidth;
-      const gameHeight = window.innerHeight;
-      setCharacterPosition({ x: gameWidth / 2 - 25 , y: gameHeight / 2 - 25 });
+  useEffect(() => { 
+    if (isClient && gameAreaRef.current) {
+      const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
+      setCharacterPosition({ x: gameAreaRect.width / 2 - 25 , y: gameAreaRect.height / 2 - 25 });
     }
   }, [isClient, gameOver]); // Runs when isClient becomes true, or when gameOver changes
 
@@ -178,76 +211,90 @@ export default function MaidMayhemGame() {
   }
   
   const TouchControls = () => (
-    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 z-20" aria-label="Touch controls">
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1 z-20 sm:hidden" aria-label="Touch controls">
       <Button
-        className="p-3 w-16 h-16 rounded-full bg-primary/80 hover:bg-primary text-primary-foreground shadow-lg"
+        className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
         onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
         onClick={() => moveCharacter('up')}
         aria-label="Move Up"
       >
-        <ArrowUp size={32} />
+        <ArrowUp size={28} />
       </Button>
-      <div className="flex gap-12">
+      <div className="flex gap-10">
         <Button
-            className="p-3 w-16 h-16 rounded-full bg-primary/80 hover:bg-primary text-primary-foreground shadow-lg"
+            className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('left');}}
             onClick={() => moveCharacter('left')}
             aria-label="Move Left"
         >
-            <ArrowLeft size={32} />
+            <ArrowLeft size={28} />
         </Button>
         <Button
-            className="p-3 w-16 h-16 rounded-full bg-primary/80 hover:bg-primary text-primary-foreground shadow-lg"
+            className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('right');}}
             onClick={() => moveCharacter('right')}
             aria-label="Move Right"
         >
-            <ArrowRight size={32} />
+            <ArrowRight size={28} />
         </Button>
       </div>
        <Button
-            className="p-3 w-16 h-16 rounded-full bg-primary/80 hover:bg-primary text-primary-foreground shadow-lg"
+            className="p-2 w-14 h-14 rounded-full bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('down');}}
             onClick={() => moveCharacter('down')}
             aria-label="Move Down"
         >
-            <ArrowDown size={32} />
+            <ArrowDown size={28} />
         </Button>
     </div>
   );
 
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-secondary flex flex-col items-center justify-center maid-mayhem-font select-none" style={{ WebkitTapHighlightColor: 'transparent' }}>
+    <div 
+      className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none"
+      style={{ 
+        backgroundImage: "url('https://picsum.photos/1920/1080')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        WebkitTapHighlightColor: 'transparent' 
+      }}
+      data-ai-hint="castle kitchen"
+    >
       <Head>
         <title>Maid Mayhem</title>
         <meta name="description" content="Collect food items as a minion maid doll!" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </Head>
 
-      <header className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
-        <h1 className="text-2xl sm:text-3xl font-bold text-primary drop-shadow-md">Maid Mayhem</h1>
+      <header className="absolute top-0 left-0 right-0 p-3 sm:p-4 flex justify-between items-center z-10">
+        <h1 className="text-xl sm:text-3xl font-bold text-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">Maid Mayhem</h1>
         <div className="flex gap-2 sm:gap-4">
-          <Card className="p-2 sm:p-3 bg-accent/90 shadow-lg rounded-xl">
-            <CardHeader className="p-0 mb-1">
-              <CardTitle className="text-sm sm:text-lg text-accent-foreground">Score</CardTitle>
+          <Card className="p-2 sm:p-3 bg-accent/80 shadow-lg rounded-lg sm:rounded-xl backdrop-blur-sm">
+            <CardHeader className="p-0 mb-0.5 sm:mb-1">
+              <CardTitle className="text-xs sm:text-lg text-accent-foreground">Score</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <p className="text-xl sm:text-2xl font-bold text-primary-foreground">{score}</p>
+              <p className="text-base sm:text-2xl font-bold text-primary-foreground">{score}</p>
             </CardContent>
           </Card>
-          <Card className="p-2 sm:p-3 bg-accent/90 shadow-lg rounded-xl">
-            <CardHeader className="p-0 mb-1">
-              <CardTitle className="text-sm sm:text-lg text-accent-foreground">Time</CardTitle>
+          <Card className="p-2 sm:p-3 bg-accent/80 shadow-lg rounded-lg sm:rounded-xl backdrop-blur-sm">
+            <CardHeader className="p-0 mb-0.5 sm:mb-1">
+              <CardTitle className="text-xs sm:text-lg text-accent-foreground">Time</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <p className="text-xl sm:text-2xl font-bold text-primary-foreground">{timeLeft}</p>
+              <p className="text-base sm:text-2xl font-bold text-primary-foreground">{timeLeft}</p>
             </CardContent>
           </Card>
         </div>
       </header>
       
-      <main className="w-full h-full" aria-hidden="true">
+      {/* Game Area */}
+      <main 
+        ref={gameAreaRef} 
+        className="relative w-[calc(100%-2rem)] h-[calc(100%-8rem)] sm:w-[calc(100%-4rem)] sm:h-[calc(100%-10rem)] max-w-screen-lg max-h-[700px] bg-black/10 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
+        aria-hidden="true"
+      >
         <div
           style={{
             position: 'absolute',
@@ -285,7 +332,7 @@ export default function MaidMayhemGame() {
 
       {gameOver && (
         <AlertDialog open={gameOver} onOpenChange={(open) => !open && restartGame()}>
-          <AlertDialogContent className="bg-background/95 border-primary shadow-2xl rounded-2xl">
+          <AlertDialogContent className="bg-background/90 border-primary shadow-2xl rounded-2xl backdrop-blur-md">
             <AlertDialogHeader className="items-center">
               <AlertDialogTitle className="text-3xl text-primary">Game Over!</AlertDialogTitle>
               <AlertDialogDescription className="text-lg text-foreground text-center">
@@ -304,3 +351,6 @@ export default function MaidMayhemGame() {
     </div>
   );
 }
+
+
+    
