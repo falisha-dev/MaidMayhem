@@ -174,7 +174,6 @@ export default function MaidMayhemGame() {
             y: Math.random() * (gameAreaRect.height - 30), // 30 is food height
             type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
           };
-          // console.log("Spawning food:", newFoodItem, "at", new Date().toLocaleTimeString());
           return [...prevFoodItems, newFoodItem];
         }
         return prevFoodItems;
@@ -210,7 +209,7 @@ export default function MaidMayhemGame() {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [isClient, gameOver]); // Added gameOver as dependency
+  }, [isClient, gameOver, toast]); 
 
   // Collision detection
   useEffect(() => {
@@ -245,7 +244,7 @@ export default function MaidMayhemGame() {
         setScore(prevScore => prevScore + pointsCollectedThisFrame);
     }
 
-  }, [isClient, characterPosition, toast]); // Added toast to dependency array
+  }, [isClient, characterPosition, toast]); 
   
   const restartGame = () => {
     setScore(0);
@@ -257,11 +256,9 @@ export default function MaidMayhemGame() {
     setGameOver(false); 
     gameOverRef.current = false;
     setPrincessScale(1);
-    // setShowControls(false); // Keep controls visibility state as per user preference
-    // Character position will be reset by the useEffect below due to gameOver change
-    if (gameAreaRef.current) { // Ensure gameAreaRef is current
+    if (gameAreaRef.current) { 
       const rect = gameAreaRef.current.getBoundingClientRect();
-       if (rect.width > 0 && rect.height > 0) { // Check for valid dimensions
+       if (rect.width > 0 && rect.height > 0) { 
         setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
         characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
       }
@@ -282,14 +279,13 @@ export default function MaidMayhemGame() {
              setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
              characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
           } else {
-            // If dimensions are not ready, try again shortly
             setTimeout(calculateCenter, 100);
           }
         }
       };
       calculateCenter();
     }
-  }, [isClient, gameOver]); // Re-center on game start/restart and when client is ready
+  }, [isClient, gameOver]);
 
 
   if (!isClient) {
@@ -305,7 +301,7 @@ export default function MaidMayhemGame() {
         <Button
             className="col-start-2 row-start-1 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
             onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
-            onClick={(e) => { e.preventDefault(); moveCharacter('up');}} // Also for mouse clicks on touch-enabled PCs
+            onClick={(e) => { e.preventDefault(); moveCharacter('up');}}
             aria-label="Move Up"
         >
             <ArrowUp size={28} />
@@ -395,7 +391,7 @@ export default function MaidMayhemGame() {
                 left: '10px',
                 width: '60px', 
                 height: '90px', 
-                zIndex: 5, // Above food items, below character if overlapping, adjust as needed
+                zIndex: 5, 
                 transform: `scale(${princessScale})`,
                 transformOrigin: 'top left',
                 transition: 'transform 0.3s ease-out',
@@ -417,12 +413,12 @@ export default function MaidMayhemGame() {
               transition={{ duration: PARTICLE_DURATION / 1000 }}
               style={{
                 position: 'absolute',
-                left: particle.x - 5, // Adjust for particle size
-                top: particle.y - 5,  // Adjust for particle size
+                left: particle.x - 5, 
+                top: particle.y - 5,  
                 width: '10px',
                 height: '10px',
               }}
-              className="pointer-events-none z-0" // Particles should be behind character and food
+              className="pointer-events-none z-0" 
             >
               <Sparkles className="w-full h-full text-accent" />
             </motion.div>
@@ -437,8 +433,8 @@ export default function MaidMayhemGame() {
             top: characterPosition.y,
             width: '50px',
             height: '50px',
-            transition: 'left 0.05s linear, top 0.05s linear', // Smoother animation
-            zIndex: 10, // Ensure character is above particles and food
+            transition: 'left 0.1s linear, top 0.1s linear', 
+            zIndex: 10, 
           }}
           className="flex items-center justify-center"
           role="img"
@@ -457,7 +453,7 @@ export default function MaidMayhemGame() {
               top: food.y,
               width: '30px',
               height: '30px',
-              zIndex: 1, // Ensure food is above background elements but below character
+              zIndex: 1, 
             }}
             className="flex items-center justify-center"
             role="img"
@@ -489,6 +485,3 @@ export default function MaidMayhemGame() {
     </div>
   );
 }
-
-
-    
