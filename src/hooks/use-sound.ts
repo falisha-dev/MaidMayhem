@@ -1,16 +1,25 @@
-
 'use client';
 
 import type { DependencyList } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// In a real app, these would be paths to your audio files
-// For now, we'll use placeholders. Genkit could potentially generate these if needed.
+// IMPORTANT: AUDIO FILE PLACEHOLDERS
+// The URLs below for '*Voice' sounds (e.g., cakeVoice, sushiVoice) are PLACEHOLDERS.
+// You MUST replace them with actual audio files of a little girl's voice saying the food item's name.
+// For example, cakeVoice should be a recording of "Cake!", sushiVoice "Sushi!", etc.
 const SOUND_PATHS = {
-  collect: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Changed to a more relaxing chime
+  collect: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Kept for reference, but new voice sounds will be used
   move: 'https://actions.google.com/sounds/v1/sports/pool_ball_pocket.ogg', 
-  gameOver: 'https://actions.google.com/sounds/v1/events/completion_positive.ogg', // Changed to a positive completion sound
+  gameOver: 'https://actions.google.com/sounds/v1/events/completion_positive.ogg', 
   backgroundMusic: 'https://actions.google.com/sounds/v1/ambiences/arcade_room.ogg', 
+  // --- Voice sound placeholders ---
+  // Replace these URLs with your actual audio files
+  cakeVoice: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Placeholder for "Cake!"
+  sushiVoice: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Placeholder for "Sushi!"
+  donutVoice: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Placeholder for "Donut!"
+  appleVoice: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Placeholder for "Apple!"
+  cherryVoice: 'https://actions.google.com/sounds/v1/cartoon/magic_chime.ogg', // Placeholder for "Cherry!"
+  // --- End of voice sound placeholders ---
 };
 
 export type SoundType = keyof typeof SOUND_PATHS;
@@ -28,14 +37,18 @@ export function useSound(soundType: SoundType, options?: UseSoundOptions, deps: 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const audio = new Audio(SOUND_PATHS[soundType]);
+      const audioUrl = SOUND_PATHS[soundType];
+      if (!audioUrl) {
+        console.warn(`Sound type "${soundType}" not found in SOUND_PATHS.`);
+        return;
+      }
+      const audio = new Audio(audioUrl);
       audioRef.current = audio;
 
       const handlePlaying = () => setIsPlaying(true);
       const handleEnded = () => {
         setIsPlaying(false);
         if (loop && audioRef.current && !audioRef.current.muted && !isMutedGlobal) {
-            // Restart looped sound if it ended and wasn't manually stopped/paused
             audioRef.current.currentTime = 0;
             audioRef.current.play().catch(error => console.warn(`Error re-playing looped sound ${soundType}:`, error));
         }
@@ -54,11 +67,11 @@ export function useSound(soundType: SoundType, options?: UseSoundOptions, deps: 
             audioRef.current.removeEventListener('ended', handleEnded);
             audioRef.current.removeEventListener('pause', handlePause);
         }
-        audioRef.current = null; // Clean up ref
+        audioRef.current = null; 
       };
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [soundType, ...deps]); // Re-create audio if soundType or critical deps change
+  }, [soundType, ...deps]); 
 
   useEffect(() => {
     if (audioRef.current) {
@@ -79,28 +92,25 @@ export function useSound(soundType: SoundType, options?: UseSoundOptions, deps: 
          audioRef.current.muted = effectivelyMuted;
       }
       if (effectivelyMuted && isPlaying) {
-        audioRef.current.pause(); // Pause if globally muted while playing
-      } else if (!effectivelyMuted && loop && !isPlaying && audioRef.current.paused && audioRef.current.currentTime > 0) {
-        // If unmuted, was looping, and paused mid-way, resume
-        // This case might be complex; for now, focus on mute toggling play/pause
+        audioRef.current.pause(); 
       }
     }
-  }, [isMutedGlobal, loop, isPlaying, volume]);
+  }, [isMutedGlobal, isPlaying, volume]); // Removed 'loop' as it's handled separately and doesn't directly affect muting logic
 
 
   const play = useCallback(() => {
     if (audioRef.current && !isMutedGlobal) {
-      if (!loop) { // For non-looping sounds, always restart
+      if (!audioRef.current.loop) { 
         audioRef.current.currentTime = 0;
       }
       audioRef.current.play().catch(error => console.warn(`Error playing sound ${soundType}:`, error));
     }
-  }, [soundType, loop, isMutedGlobal]);
+  }, [soundType, isMutedGlobal]); // Removed loop from deps as audioRef.current.loop handles it
 
   const stop = useCallback(() => {
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0; // Reset time on explicit stop
+      audioRef.current.currentTime = 0; 
     }
   }, []);
 
@@ -118,4 +128,3 @@ export function useSound(soundType: SoundType, options?: UseSoundOptions, deps: 
 
   return { play, stop, isPlaying, togglePlay, audioEl: audioRef.current };
 }
-
