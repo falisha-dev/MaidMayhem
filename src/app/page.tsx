@@ -1,7 +1,7 @@
 "use client";
 
 import Head from 'next/head';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -48,6 +48,54 @@ const FOOD_TYPES: FoodConfig[] = [
   { name: 'Cherry', points: 12, Icon: CherryIcon },
 ];
 
+// TouchControls Component (Memoized)
+interface TouchControlsProps {
+  onMove: (direction: 'up' | 'down' | 'left' | 'right') => void;
+}
+
+const TouchControls = React.memo(({ onMove }: TouchControlsProps) => (
+  <div
+      className="fixed bottom-4 right-4 md:bottom-8 md:right-8 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20"
+      aria-label="Touch controls D-pad"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
+  >
+      <Button
+          className="col-start-2 row-start-1 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+          onTouchStart={(e) => { e.preventDefault(); onMove('up');}}
+          onClick={(e) => { e.preventDefault(); onMove('up');}}
+          aria-label="Move Up"
+      >
+          <ArrowUp size={28} />
+      </Button>
+      <Button
+          className="col-start-1 row-start-2 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+          onTouchStart={(e) => { e.preventDefault(); onMove('left');}}
+          onClick={(e) => { e.preventDefault(); onMove('left');}}
+          aria-label="Move Left"
+      >
+          <ArrowLeft size={28} />
+      </Button>
+      <Button
+          className="col-start-3 row-start-2 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+          onTouchStart={(e) => { e.preventDefault(); onMove('right');}}
+          onClick={(e) => { e.preventDefault(); onMove('right');}}
+          aria-label="Move Right"
+      >
+          <ArrowRight size={28} />
+      </Button>
+      <Button
+          className="col-start-2 row-start-3 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
+          onTouchStart={(e) => { e.preventDefault(); onMove('down');}}
+          onClick={(e) => { e.preventDefault(); onMove('down');}}
+          aria-label="Move Down"
+      >
+          <ArrowDown size={28} />
+      </Button>
+  </div>
+));
+TouchControls.displayName = "TouchControls";
+
+
 export default function MaidMayhemGame() {
   const [characterPosition, setCharacterPosition] = useState({ x: 50, y: 50 });
   const [foodItems, setFoodItems] = useState<FoodItemType[]>([]);
@@ -59,24 +107,23 @@ export default function MaidMayhemGame() {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [princessScale, setPrincessScale] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+
   const gameAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
   const particleIdCounter = useRef(0);
+  const firstMountRef = useRef(true);
 
-
-  // Refs for state values used in intervals/event listeners
   const timeLeftRef = useRef(timeLeft);
   const gameOverRef = useRef(gameOver);
   const foodItemsRef = useRef(foodItems);
   const scoreRef = useRef(score);
   const characterPositionRef = useRef(characterPosition);
 
-  // Sound effects
   const { play: playCollectSound } = useSound('collect', { volume: 0.5, isMutedGlobal: isMuted });
   const { play: playMoveSound } = useSound('move', { volume: 0.3, isMutedGlobal: isMuted });
   const { play: playGameOverSound } = useSound('gameOver', { volume: 0.7, isMutedGlobal: isMuted });
   const { play: playBackgroundMusic, stop: stopBackgroundMusic, isPlaying: isMusicPlaying } = useSound('backgroundMusic', { volume: 0.2, loop: true, isMutedGlobal: isMuted });
-
 
   useEffect(() => {
     setIsClient(true);
@@ -85,57 +132,39 @@ export default function MaidMayhemGame() {
     }
   }, []);
 
-  useEffect(() => {
-    timeLeftRef.current = timeLeft;
-  }, [timeLeft]);
-
-  useEffect(() => {
-    gameOverRef.current = gameOver;
-  }, [gameOver]);
-
-  useEffect(() => {
-    foodItemsRef.current = foodItems;
-  }, [foodItems]);
-
+  useEffect(() => { timeLeftRef.current = timeLeft; }, [timeLeft]);
+  useEffect(() => { gameOverRef.current = gameOver; }, [gameOver]);
+  useEffect(() => { foodItemsRef.current = foodItems; }, [foodItems]);
   useEffect(() => {
     scoreRef.current = score;
     setPrincessScale(prevScale => Math.min(MAX_PRINCESS_SCALE, 1 + (score * PRINCESS_SCALE_INCREMENT / 10)));
   }, [score]);
+  useEffect(() => { characterPositionRef.current = characterPosition; }, [characterPosition]);
 
-  useEffect(() => {
-    characterPositionRef.current = characterPosition;
-  }, [characterPosition]);
-
-  // Background music management
   useEffect(() => {
     if (isClient && !gameOverRef.current && !isMusicPlaying) {
       playBackgroundMusic();
     } else if (isClient && gameOverRef.current && isMusicPlaying) {
       stopBackgroundMusic();
     }
-    // Cleanup music on component unmount
-    return () => {
-      if (isMusicPlaying) {
-        stopBackgroundMusic();
-      }
-    };
+    return () => { if (isMusicPlaying) stopBackgroundMusic(); };
   }, [isClient, gameOver, playBackgroundMusic, stopBackgroundMusic, isMusicPlaying]);
 
 
-  const addParticles = (x: number, y: number) => {
+  const addParticles = useCallback((x: number, y: number) => {
     particleIdCounter.current += 1;
     const newParticle: Particle = { id: particleIdCounter.current, x, y, createdAt: Date.now() };
     setParticles(prev => [...prev, newParticle]);
     setTimeout(() => {
       setParticles(prev => prev.filter(p => p.id !== newParticle.id));
     }, PARTICLE_DURATION);
-  };
+  }, [setParticles]);
 
 
   const moveCharacter = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
     if (gameOverRef.current || !gameAreaRef.current) return;
-
     const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
+    if (gameAreaRect.width <= 0 || gameAreaRect.height <= 0) return;
 
     setCharacterPosition(prev => {
       let newX = prev.x;
@@ -147,8 +176,8 @@ export default function MaidMayhemGame() {
       if (direction === 'left') newX -= step;
       if (direction === 'right') newX += step;
 
-      newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX)); // 50 is character width
-      newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY)); // 50 is character height
+      newX = Math.max(0, Math.min(gameAreaRect.width - 50, newX));
+      newY = Math.max(0, Math.min(gameAreaRect.height - 50, newY));
 
       if (newX !== prev.x || newY !== prev.y) {
         addParticles(newX + 25, newY + 25);
@@ -156,42 +185,34 @@ export default function MaidMayhemGame() {
       }
       return { x: newX, y: newY };
     });
-  }, [playMoveSound]);
+  }, [playMoveSound, addParticles]);
 
-  // Keyboard controls
+
   useEffect(() => {
     if (!isClient) return;
-
     const handleKeyDown = (e: KeyboardEvent) => {
         if (gameOverRef.current) return;
-
         if (e.key === 'ArrowUp') { e.preventDefault(); moveCharacter('up'); }
         else if (e.key === 'ArrowDown') { e.preventDefault(); moveCharacter('down'); }
         else if (e.key === 'ArrowLeft') { e.preventDefault(); moveCharacter('left'); }
         else if (e.key === 'ArrowRight') { e.preventDefault(); moveCharacter('right'); }
       };
-
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
-
   }, [isClient, moveCharacter]);
 
-  // Spawn food items
+
   useEffect(() => {
     if (!isClient) return;
-
     const spawnFood = () => {
-      if (gameOverRef.current || !gameAreaRef.current || foodItemsRef.current.length >= MAX_FOOD_ITEMS) {
-        return;
-      }
-
+      if (gameOverRef.current || !gameAreaRef.current || foodItemsRef.current.length >= MAX_FOOD_ITEMS) return;
       const gameAreaRect = gameAreaRef.current.getBoundingClientRect();
-       if (gameAreaRect.width <= 0 || gameAreaRect.height <=0) return;
+      if (gameAreaRect.width <= 0 || gameAreaRect.height <=0) return;
 
       setFoodItems(prevFoodItems => {
          if (prevFoodItems.length < MAX_FOOD_ITEMS ) {
           const newFoodItem = {
-            id: Date.now() + Math.random(), // This ID is for food items, not particles. Keeping as is for now.
+            id: Date.now() + Math.random(),
             x: Math.random() * (gameAreaRect.width - 30),
             y: Math.random() * (gameAreaRect.height - 30),
             type: FOOD_TYPES[Math.floor(Math.random() * FOOD_TYPES.length)],
@@ -203,20 +224,13 @@ export default function MaidMayhemGame() {
     };
 
     const interval = setInterval(spawnFood, FOOD_SPAWN_INTERVAL);
-    spawnFood();
+    if (!gameOverRef.current) spawnFood(); // Initial spawn if not game over
     return () => clearInterval(interval);
   }, [isClient, gameOver]);
 
-  // Timer
+
   useEffect(() => {
-    if (!isClient) return;
-    if (timeLeftRef.current <= 0 && !gameOverRef.current) {
-      setGameOver(true);
-      stopBackgroundMusic();
-      playGameOverSound();
-      return;
-    }
-    if (gameOverRef.current) return;
+    if (!isClient || gameOverRef.current) return;
 
     const timer = setInterval(() => {
       if (timeLeftRef.current <= 1) {
@@ -235,9 +249,9 @@ export default function MaidMayhemGame() {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, [isClient, gameOver, toast, playGameOverSound, stopBackgroundMusic]);
+  }, [isClient, gameOver, toast, playGameOverSound, stopBackgroundMusic, setTimeLeft, setGameOver]);
 
-  // Collision detection
+
   useEffect(() => {
     if (!isClient || gameOverRef.current) return;
 
@@ -247,7 +261,6 @@ export default function MaidMayhemGame() {
 
     const newFoodItems = foodItemsRef.current.filter(food => {
       const foodRect = { x: food.x, y: food.y, width: 30, height: 30 };
-
       if (
         charRect.x < foodRect.x + foodRect.width &&
         charRect.x + charRect.width > foodRect.x &&
@@ -258,7 +271,7 @@ export default function MaidMayhemGame() {
         itemsCollectedThisFrame++;
         playCollectSound();
         toast({
-            description: `Collected ${food.type.name}! +${food.type.points} points`,
+            description: `Collected ${food.type.name}! +${food.type.points}`,
             duration: 1500,
         });
         return false;
@@ -270,27 +283,35 @@ export default function MaidMayhemGame() {
         setFoodItems(newFoodItems);
         setScore(prevScore => prevScore + pointsCollectedThisFrame);
     }
+  }, [isClient, characterPosition, foodItems, score, toast, playCollectSound, setFoodItems, setScore]);
 
-  }, [isClient, characterPosition, toast, playCollectSound]);
 
-  const restartGame = () => {
+  const restartGame = useCallback(() => {
     setScore(0);
-    scoreRef.current = 0;
     setTimeLeft(GAME_DURATION);
-    timeLeftRef.current = GAME_DURATION;
     setFoodItems([]);
-    foodItemsRef.current = [];
     setGameOver(false);
-    gameOverRef.current = false;
     setPrincessScale(1);
-    particleIdCounter.current = 0; // Reset particle ID counter
+    particleIdCounter.current = 0; 
+    
     if (gameAreaRef.current) {
       const rect = gameAreaRef.current.getBoundingClientRect();
        if (rect.width > 0 && rect.height > 0) {
-        setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
-        characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
+        const newCenterPos = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
+        setCharacterPosition(newCenterPos);
+        characterPositionRef.current = newCenterPos; // Keep ref in sync
+      } else {
+        // Fallback if rect not ready, though less likely now with initial restartGame call
+        const fallbackPos = { x: 50, y: 50};
+        setCharacterPosition(fallbackPos);
+        characterPositionRef.current = fallbackPos;
       }
+    } else {
+        const fallbackPos = { x: 50, y: 50};
+        setCharacterPosition(fallbackPos);
+        characterPositionRef.current = fallbackPos;
     }
+
     if (!isMusicPlaying) {
         playBackgroundMusic();
     }
@@ -299,78 +320,25 @@ export default function MaidMayhemGame() {
         description: "Collect as much food as you can!",
         duration: 3000,
     });
-  };
+  }, [setScore, setTimeLeft, setFoodItems, setGameOver, setPrincessScale, setCharacterPosition, playBackgroundMusic, isMusicPlaying, toast]);
+
 
   useEffect(() => {
-    if (isClient && gameAreaRef.current) {
-      const calculateCenter = () => {
-        if (gameAreaRef.current) {
-          const rect = gameAreaRef.current.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0) {
-             setCharacterPosition({ x: rect.width / 2 - 25 , y: rect.height / 2 - 25 });
-             characterPositionRef.current = { x: rect.width / 2 - 25 , y: rect.height / 2 - 25 };
-          } else {
-            setTimeout(calculateCenter, 100); // Retry if dimensions are not yet available
-          }
-        }
-      };
-      calculateCenter();
+    if (isClient && firstMountRef.current) {
+      restartGame();
+      firstMountRef.current = false;
     }
-  }, [isClient, gameOver]); // Re-center if game restarts (gameOver changes from true to false)
+  }, [isClient, restartGame]);
 
 
   if (!isClient) {
     return <div className="w-screen h-screen flex items-center justify-center bg-secondary"><p className="text-2xl text-primary">Loading Game...</p></div>;
   }
 
-  const TouchControls = () => (
-    <div
-        className="fixed bottom-4 right-4 md:bottom-8 md:right-8 grid grid-cols-3 grid-rows-3 w-fit gap-1 z-20"
-        aria-label="Touch controls D-pad"
-        style={{ WebkitTapHighlightColor: 'transparent' }}
-    >
-        <Button
-            className="col-start-2 row-start-1 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
-            onTouchStart={(e) => { e.preventDefault(); moveCharacter('up');}}
-            onClick={(e) => { e.preventDefault(); moveCharacter('up');}} // Also allow click for mouse users on touch-enabled PCs
-            aria-label="Move Up"
-        >
-            <ArrowUp size={28} />
-        </Button>
-        <Button
-            className="col-start-1 row-start-2 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
-            onTouchStart={(e) => { e.preventDefault(); moveCharacter('left');}}
-            onClick={(e) => { e.preventDefault(); moveCharacter('left');}}
-            aria-label="Move Left"
-        >
-            <ArrowLeft size={28} />
-        </Button>
-        <Button
-            className="col-start-3 row-start-2 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
-            onTouchStart={(e) => { e.preventDefault(); moveCharacter('right');}}
-            onClick={(e) => { e.preventDefault(); moveCharacter('right');}}
-            aria-label="Move Right"
-        >
-            <ArrowRight size={28} />
-        </Button>
-        <Button
-            className="col-start-2 row-start-3 p-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/70 hover:bg-primary text-primary-foreground shadow-lg flex items-center justify-center"
-            onTouchStart={(e) => { e.preventDefault(); moveCharacter('down');}}
-            onClick={(e) => { e.preventDefault(); moveCharacter('down');}}
-            aria-label="Move Down"
-        >
-            <ArrowDown size={28} />
-        </Button>
-    </div>
-  );
-
-
   return (
     <div
       className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none bg-secondary p-2 sm:p-4"
-      style={{
-        WebkitTapHighlightColor: 'transparent' // Prevents blue flash on tap for touch controls
-      }}
+      style={{ WebkitTapHighlightColor: 'transparent' }}
     >
       <Head>
         <title>Maid Mayhem</title>
@@ -421,9 +389,8 @@ export default function MaidMayhemGame() {
       <main
         ref={gameAreaRef}
         className="relative w-full h-[calc(100%-100px)] sm:h-[calc(100%-120px)] max-w-screen-lg bg-background/30 rounded-xl shadow-2xl overflow-hidden border-2 border-primary/50 backdrop-blur-sm"
-        aria-hidden="true" // Game area is not primary content for screen readers
+        aria-hidden="true"
       >
-        {/* Princess Character */}
         <div
             style={{
                 position: 'absolute',
@@ -442,30 +409,28 @@ export default function MaidMayhemGame() {
             <PrincessIcon className="w-full h-full text-pink-400 drop-shadow-md" />
         </div>
 
-        {/* Particles */}
         <AnimatePresence>
           {particles.map(particle => (
             <motion.div
               key={particle.id}
               initial={{ opacity: 1, scale: 1 }}
               animate={{ opacity: 0, scale: 0.5 }}
-              exit={{ opacity: 0 }} // Should be handled by AnimatePresence
+              exit={{ opacity: 0 }}
               transition={{ duration: PARTICLE_DURATION / 1000 }}
               style={{
                 position: 'absolute',
-                left: particle.x - 5, // Center particle
-                top: particle.y - 5,  // Center particle
+                left: particle.x - 5,
+                top: particle.y - 5,
                 width: '10px',
                 height: '10px',
               }}
-              className="pointer-events-none z-0" // Ensure particles don't interfere with interaction
+              className="pointer-events-none z-0"
             >
               <Sparkles className="w-full h-full text-accent" />
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {/* Character */}
         <motion.div
           animate={{ x: characterPosition.x, y: characterPosition.y }}
           transition={{ type: "spring", stiffness: 700, damping: 35, mass: 0.5 }}
@@ -482,7 +447,6 @@ export default function MaidMayhemGame() {
            <MaidIcon className="w-full h-full text-primary drop-shadow-lg" />
         </motion.div>
 
-        {/* Food Items */}
         {foodItems.map(food => (
           <div
             key={food.id}
@@ -492,7 +456,7 @@ export default function MaidMayhemGame() {
               top: food.y,
               width: '30px',
               height: '30px',
-              zIndex: 1, // Ensure food is below character but above background elements if any
+              zIndex: 1,
             }}
             className="flex items-center justify-center"
             role="img"
@@ -520,7 +484,8 @@ export default function MaidMayhemGame() {
           </AlertDialogContent>
         </AlertDialog>
       )}
-      {!gameOver && showControls && <TouchControls />}
+      {!gameOver && showControls && <TouchControls onMove={moveCharacter} />}
     </div>
   );
 }
+
