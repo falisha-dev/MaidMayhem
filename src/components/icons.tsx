@@ -167,3 +167,4 @@ export const PrincessIcon = (props: SVGProps<SVGSVGElement>) => (
     <circle cx="55" cy="52" r="1.5" fill="hsl(var(--primary-foreground))"/>
   </svg>
 );
+

@@ -434,11 +434,10 @@ export default function MaidMayhemGame() {
       className="relative w-screen h-screen overflow-hidden flex flex-col items-center justify-center maid-mayhem-font select-none bg-secondary p-2 sm:p-4"
       style={{ WebkitTapHighlightColor: 'transparent' }}
     >
-      <Head>
+      <Head >
         <title>Maid Mayhem</title>
         <meta name="description" content="Collect food items as a minion maid doll!" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-      </Head>
+        <link rel="icon" href="/maid.svg" /> </Head>
 
       <header className="w-full max-w-screen-lg mb-2 sm:mb-4 flex justify-between items-center z-10 px-2">
         <h1 className="text-xl sm:text-3xl font-bold text-primary drop-shadow-[0_2px_2px_rgba(0,0,0,0.5)]">Maid Mayhem</h1>
